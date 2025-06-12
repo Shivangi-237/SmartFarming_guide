@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   const el = {
     launcher   : document.getElementById("chatbot-launcher"),
@@ -5,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     box        : document.getElementById("chatbot-container"),
     closeBtn   : document.getElementById("close-chat"),
     langToggle : document.getElementById("language-toggle"),
-    quickOpt   : document.getElementById("chat-quick-options"),
+    quickOpt   : document.getElementById("chat-quick-options"), 
     messages   : document.getElementById("chat-messages"),
     userInput  : document.getElementById("user-input"),
     sendBtn    : document.getElementById("send-btn"),
@@ -23,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     firstOpen       : true,
      hasSentFirstMessage: false
   };
+
 
   // 👉 Scroll to bottom of chat
   const scrollBottom = () =>

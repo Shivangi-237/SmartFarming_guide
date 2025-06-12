@@ -13,7 +13,7 @@ openBtn.addEventListener('click', async () => {
   tipsBox.classList.add('show');
   positionTipsBox(); // ✅ Show box first
 
-  // ⏳ Load data in background
+  //  Load data in background
   const weather = await getWeather();
   weatherLabel.textContent = `🌤 Weather: ${weather}`;
   await fetchTips(weather,false); // This will only render 3 tips now
