@@ -10,10 +10,10 @@
 
   window.SMART_FARM_CONFIG = {
     // Node.js Express Backend (Weather, Chatbot, Tips, User Auth)
-    // Replace with your live Render Node.js URL when deployed
+    // Live Render URL
     NODE_API_URL: isLocal 
       ? 'http://localhost:5000' 
-      : 'https://smartfarm-backend.onrender.com',
+      : 'https://smartfarming-guide.onrender.com',
 
     // Python Flask ML Backend (Plant Disease & Seed Classification Models)
     // Replace with your live Render / Hugging Face Python URL when deployed
