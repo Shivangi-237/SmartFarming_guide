@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+*/node_modules/
+package-lock.json
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environment & cache
+.venv/
+venv/
+ENV/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary uploads
+uploads/
+*/uploads/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+*.log
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
