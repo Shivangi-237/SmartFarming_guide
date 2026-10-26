@@ -138,13 +138,16 @@ function showLoading(text) {
   weatherInfo.style.display = 'block';
 }
 
+// Helper to resolve Node.js API base URL dynamically
+const getNodeUrl = (path) => (window.getNodeApiUrl ? window.getNodeApiUrl(path) : path);
+
 // Fetch weather by city name with multi-layer fallback
 async function fetchWeatherByCity(city, lang = 'en') {
   showLoading(lang === 'hi' ? `<strong>${city}</strong> के लिए मौसम लोड हो रहा है...` : `Fetching live weather for <strong>${city}</strong>...`);
 
   // Attempt 1: Direct city search on /weather?city=
   try {
-    const res = await fetch(`/weather?city=${encodeURIComponent(city)}&lang=${lang}`);
+    const res = await fetch(getNodeUrl(`/weather?city=${encodeURIComponent(city)}&lang=${lang}`));
     if (res.ok) {
       const data = await res.json();
       if (data && data.main && data.main.temp !== undefined) {
@@ -158,12 +161,12 @@ async function fetchWeatherByCity(city, lang = 'en') {
 
   // Attempt 2: Dual-hop fallback (/geocode -> /weather?lat=&lon=)
   try {
-    const geoRes = await fetch(`/geocode?city=${encodeURIComponent(city)}`);
+    const geoRes = await fetch(getNodeUrl(`/geocode?city=${encodeURIComponent(city)}`));
     if (geoRes.ok) {
       const geoData = await geoRes.json();
       if (Array.isArray(geoData) && geoData.length > 0 && geoData[0].lat) {
         const { lat, lon } = geoData[0];
-        const wRes = await fetch(`/weather?lat=${lat}&lon=${lon}&lang=${lang}`);
+        const wRes = await fetch(getNodeUrl(`/weather?lat=${lat}&lon=${lon}&lang=${lang}`));
         if (wRes.ok) {
           const wData = await wRes.json();
           if (wData && wData.main && wData.main.temp !== undefined) {
@@ -218,7 +221,7 @@ async function fetchWeatherByCoords(lat, lon, lang = 'en') {
   // Step 1: Detect place name via reverse geocode
   let detectedPlace = '';
   try {
-    const revRes = await fetch(`/reverse-geocode?lat=${lat}&lon=${lon}&lang=${lang}`);
+    const revRes = await fetch(getNodeUrl(`/reverse-geocode?lat=${lat}&lon=${lon}&lang=${lang}`));
     if (revRes.ok) {
       const revData = await revRes.json();
       if (revData && revData.city) {
@@ -239,7 +242,7 @@ async function fetchWeatherByCoords(lat, lon, lang = 'en') {
 
   // Step 2: Fetch weather for coordinates
   try {
-    const res = await fetch(`/weather?lat=${lat}&lon=${lon}&lang=${lang}`);
+    const res = await fetch(getNodeUrl(`/weather?lat=${lat}&lon=${lon}&lang=${lang}`));
     if (res.ok) {
       const data = await res.json();
       if (data && data.main && data.main.temp !== undefined) {

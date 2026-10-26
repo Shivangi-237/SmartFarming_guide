@@ -154,8 +154,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('image', file);
 
+        const getMlUrl = (endpoint) => (window.getMlApiUrl ? window.getMlApiUrl(endpoint) : `http://localhost:5001${endpoint}`);
+
         try {
-            const response = await fetch("http://localhost:5001/predict", {
+            const response = await fetch(getMlUrl('/predict'), {
                 method: 'POST',
                 body: formData
             });
@@ -211,8 +213,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('image', file);
 
+        const getMlUrl = (endpoint) => (window.getMlApiUrl ? window.getMlApiUrl(endpoint) : `http://localhost:5001${endpoint}`);
+
         try {
-            const response = await fetch("http://localhost:5001/predict-seed", {
+            const response = await fetch(getMlUrl('/predict-seed'), {
                 method: 'POST',
                 body: formData
             });

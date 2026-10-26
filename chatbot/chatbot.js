@@ -1,4 +1,4 @@
-﻿
+
 document.addEventListener("DOMContentLoaded", () => {
   const el = {
     launcher   : document.getElementById("chatbot-launcher"),
@@ -129,7 +129,8 @@ const loadQuickOptions = () => {
       const typing = showTyping();
 
       try {
-        const response = await fetch("http://localhost:5000/chat", {
+        const chatUrl = (window.getNodeApiUrl ? window.getNodeApiUrl('/chat') : "http://localhost:5000/chat");
+        const response = await fetch(chatUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -180,7 +181,8 @@ const loadQuickOptions = () => {
     const typing = showTyping();
 
     try {
-      const response = await fetch("http://localhost:5000/chat", {
+      const chatUrl = (window.getNodeApiUrl ? window.getNodeApiUrl('/chat') : "http://localhost:5000/chat");
+      const response = await fetch(chatUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

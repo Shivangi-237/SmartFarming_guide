@@ -78,7 +78,8 @@ async function getWeather() {
     if (!navigator.geolocation) return 'sunny';
     const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 7000 }));
     const { latitude, longitude } = pos.coords;
-    const res = await fetch(`http://localhost:5000/get-weather?lat=${latitude}&lon=${longitude}`);
+    const weatherUrl = (window.getNodeApiUrl ? window.getNodeApiUrl('/get-weather') : 'http://localhost:5000/get-weather') + `?lat=${latitude}&lon=${longitude}`;
+    const res = await fetch(weatherUrl);
     const data = await res.json();
     return data.weather || 'sunny';
   } catch (err) {
@@ -143,7 +144,8 @@ async function fetchTips(weather) {
   try {
     tipsContainer.innerHTML = loaderMarkup();
 
-    const res = await fetch('http://localhost:5000/get-tips', {
+    const tipsUrl = window.getNodeApiUrl ? window.getNodeApiUrl('/get-tips') : 'http://localhost:5000/get-tips';
+    const res = await fetch(tipsUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

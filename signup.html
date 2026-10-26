@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Farming - Sign Up</title>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
     <style>
         :root {
             --primary: #4CAF50;
@@ -163,7 +164,8 @@
             submitBtn.textContent = 'Creating account...';
 
             try {
-                const res = await fetch('http://localhost:5000/api/auth/signup', {
+                const signupUrl = window.getNodeApiUrl ? window.getNodeApiUrl('/api/auth/signup') : 'http://localhost:5000/api/auth/signup';
+                const res = await fetch(signupUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email, password })
