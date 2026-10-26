@@ -16,10 +16,10 @@
       : 'https://smartfarming-guide.onrender.com',
 
     // Python Flask ML Backend (Plant Disease & Seed Classification Models)
-    // Replace with your live Render / Hugging Face Python URL when deployed
+    // Live Render URL
     ML_API_URL: isLocal 
       ? 'http://localhost:5001' 
-      : 'https://smartfarm-ml.onrender.com'
+      : 'https://smartfarming-ml-oat2.onrender.com'
   };
 
   // Safe helper getters
