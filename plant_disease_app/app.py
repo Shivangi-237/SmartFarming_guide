@@ -6,7 +6,11 @@ import os
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder='templates')
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+@app.route('/healthz')
+def healthz():
+    return jsonify({'status': 'ok', 'service': 'smartfarming-ml'}), 200
 
 # ─── Configuration ─────────────────────────────────────────────
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')

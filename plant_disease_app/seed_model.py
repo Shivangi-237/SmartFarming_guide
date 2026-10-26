@@ -1,16 +1,25 @@
 import os
 import numpy as np
+
+# Optimize TensorFlow for single-worker cloud CPU environments
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['TF_NUM_INTRAOP_THREADS'] = '1'
+os.environ['TF_NUM_INTEROP_THREADS'] = '1'
+
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'seed_model.h5')
-model = load_model(MODEL_PATH, compile=False)
+_seed_model = None
 
-# Warm up model graph during server boot so user requests are fast
-try:
-    _ = model(np.zeros((1, 128, 128, 3), dtype=np.float32), training=False)
-except Exception as _e:
-    pass
+def get_seed_model():
+    global _seed_model
+    if _seed_model is None:
+        print("🌱 Loading seed model into memory...")
+        _seed_model = load_model(MODEL_PATH, compile=False)
+        print("✅ Seed model loaded successfully.")
+    return _seed_model
 
 seed_classes = ['Apple', 'Corn', 'Pomegranate', 'Rice', 'Soybean', 'Sunflower', 'Wheat']
 
@@ -55,6 +64,7 @@ seed_details = {
 CONFIDENCE_THRESHOLD = 50.0  # Seeds with confidence below 50% are flagged as unrecognized/unsupported
 
 def predict_seed(image_path):
+    model = get_seed_model()
     img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
     arr = tf.keras.preprocessing.image.img_to_array(img) / 255.0
     arr = np.expand_dims(arr, axis=0)

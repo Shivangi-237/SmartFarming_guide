@@ -1,5 +1,12 @@
 import os
 import numpy as np
+
+# Optimize TensorFlow for single-worker cloud CPU environments
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['TF_NUM_INTRAOP_THREADS'] = '1'
+os.environ['TF_NUM_INTEROP_THREADS'] = '1'
+
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
@@ -32,14 +39,17 @@ def build_disease_model():
     return model
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'plant_disease_model.h5')
-model = build_disease_model()
-model.load_weights(MODEL_PATH)
+_disease_model = None
 
-# Warm up model graph during server boot so user requests are fast
-try:
-    _ = model(np.zeros((1, 128, 128, 3), dtype=np.float32), training=False)
-except Exception as _e:
-    pass
+def get_disease_model():
+    global _disease_model
+    if _disease_model is None:
+        print("🌿 Loading plant disease model into memory...")
+        m = build_disease_model()
+        m.load_weights(MODEL_PATH)
+        _disease_model = m
+        print("✅ Plant disease model loaded successfully.")
+    return _disease_model
 
 # Exactly 23 classes as trained in Train_Plant_Disease1.ipynb
 class_names = [
@@ -69,6 +79,7 @@ class_names = [
 ]
 
 def predict_disease(image_path):
+    model = get_disease_model()
     img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
     arr = tf.keras.preprocessing.image.img_to_array(img)
     arr = np.expand_dims(arr, axis=0)
