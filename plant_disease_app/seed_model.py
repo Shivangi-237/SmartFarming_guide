@@ -6,6 +6,12 @@ from tensorflow.keras.models import load_model
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'seed_model.h5')
 model = load_model(MODEL_PATH, compile=False)
 
+# Warm up model graph during server boot so user requests are fast
+try:
+    _ = model(np.zeros((1, 128, 128, 3), dtype=np.float32), training=False)
+except Exception as _e:
+    pass
+
 seed_classes = ['Apple', 'Corn', 'Pomegranate', 'Rice', 'Soybean', 'Sunflower', 'Wheat']
 
 seed_details = {
@@ -52,7 +58,7 @@ def predict_seed(image_path):
     img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
     arr = tf.keras.preprocessing.image.img_to_array(img) / 255.0
     arr = np.expand_dims(arr, axis=0)
-    preds = model.predict(arr)
+    preds = model(arr, training=False).numpy()
     idx = int(np.argmax(preds[0]))
     confidence = float(round(float(preds[0][idx]) * 100, 2))
     name = seed_classes[idx]
