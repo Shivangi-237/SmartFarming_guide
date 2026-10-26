@@ -64,6 +64,26 @@ seed_details = {
 CONFIDENCE_THRESHOLD = 50.0  # Seeds with confidence below 50% are flagged as unrecognized/unsupported
 
 def predict_seed(image_path):
+    # 1. Primary: Intelligent Agronomic Vision via Gemini
+    try:
+        from gemini_vision import identify_seed_with_gemini
+        gemini_res = identify_seed_with_gemini(image_path)
+        if gemini_res and 'seed' in gemini_res:
+            name = gemini_res['seed']
+            conf = float(gemini_res.get('confidence', 95.0))
+            is_rec = bool(gemini_res.get('is_recognized', True))
+            base_info = seed_details.get(name, {})
+            info = {
+                'scientific': gemini_res.get('scientific', base_info.get('scientific', name)),
+                'planting_en': gemini_res.get('planting_en', base_info.get('planting_en', '')),
+                'planting_hi': gemini_res.get('planting_hi', base_info.get('planting_hi', '')),
+                'is_recognized': is_rec
+            }
+            return name, conf, info
+    except Exception as e:
+        print("⚠️ Gemini vision error, using local CNN fallback:", e)
+
+    # 2. Fallback: Local CNN Model
     model = get_seed_model()
     img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
     arr = tf.keras.preprocessing.image.img_to_array(img) / 255.0
@@ -73,7 +93,8 @@ def predict_seed(image_path):
     confidence = float(round(float(preds[0][idx]) * 100, 2))
     name = seed_classes[idx]
     
-    is_recognized = bool(confidence >= CONFIDENCE_THRESHOLD)
+    # 25% threshold for 7-class local model (random chance is 14%)
+    is_recognized = bool(confidence >= 25.0)
     
     base_info = seed_details.get(name, {
         'scientific': name,

@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const plantingEn = data.planting_en || 'Best planted in well-drained soil with proper moisture.';
             const plantingHi = data.planting_hi || 'उचित नमी के साथ अच्छी जल निकासी वाली मिट्टी में लगाएं।';
 
-            if (data.is_recognized === false || parseFloat(conf) < 50.0) {
+            if (data.is_recognized === false || parseFloat(conf) < 25.0) {
                 resultBox.innerHTML = `
                     <div class="result-item" style="border-left: 4px solid #f59e0b; background: #fffbeb; padding: 12px; border-radius: 8px;">
                         <h4 class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}; color: #b45309; margin-bottom: 6px;">⚠️ Unrecognized / Unsupported Seed</h4>

@@ -79,6 +79,17 @@ class_names = [
 ]
 
 def predict_disease(image_path):
+    # 1. Primary: Intelligent Agronomic Vision via Gemini
+    try:
+        from gemini_vision import identify_disease_with_gemini
+        gemini_res = identify_disease_with_gemini(image_path)
+        if gemini_res:
+            pred_class, conf = gemini_res
+            return pred_class, conf
+    except Exception as e:
+        print("⚠️ Gemini disease vision error, using local CNN fallback:", e)
+
+    # 2. Fallback: Local CNN Model
     model = get_disease_model()
     img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
     arr = tf.keras.preprocessing.image.img_to_array(img)
