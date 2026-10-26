@@ -10,11 +10,7 @@
 
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="script1.js"></script>
-    <!-- Botpress Webchat -->
-
-    <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
-    <script src="https://files.bpcontent.cloud/2025/03/01/06/20250301064704-Y1Z9VQNM.js"></script>
+    <script src="script1.js" defer></script>
 
 </head>
 <body>
@@ -31,7 +27,7 @@
     <!-- Header -->
     <header>
         <div class="logo-container">
-            <img src="\images\logo.jpg" alt="Smart Farming Guide Logo">
+            <img src="images/logo.jpg" alt="Smart Farming Guide Logo">
             <h1 class="en">Smart Farming Guide</h1>
             <h1 class="hi" style="display:none">स्मार्ट फार्मिंग गाइड</h1>
         </div>
@@ -59,7 +55,7 @@
         </section>
 
         <!-- Dashboard Section -->
-        <section class="dashboard">
+        <section class="dashboard" id="dashboard-section">
             <h2 class="en">Dashboard</h2>
             <h2 class="hi" style="display:none">डैशबोर्ड</h2>
             
@@ -129,19 +125,36 @@
         <div id="disease-modal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2 class="en">Disease Detection</h2>
-                <h2 class="hi" style="display:none">रोग पहचान</h2>
-                <div class="upload-area">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p class="en">Upload plant image to detect diseases</p>
-                    <p class="hi" style="display:none">रोगों का पता लगाने के लिए पौधों की छवि अपलोड करें</p>
+                <h2 class="en">Plant Disease Detection</h2>
+                <h2 class="hi" style="display:none">पौधों के रोग की पहचान</h2>
+                
+                <!-- Compact Upload Area -->
+                <div class="upload-area" id="disease-upload-area">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <p class="en upload-hint" id="disease-file-label">Click to select plant leaf image</p>
+                    <p class="hi upload-hint" id="disease-file-label-hi" style="display:none">पत्ती की तस्वीर चुनने के लिए क्लिक करें</p>
+                    <span class="upload-subtext en">JPG, PNG (Max 5MB)</span>
+                    <span class="upload-subtext hi" style="display:none">JPG, PNG (अधिकतम 5MB)</span>
                     <input type="file" id="disease-image" accept="image/*">
-                    <button id="analyze-disease" class="en">Analyze Image</button>
-                    <button id="analyze-disease" class="hi" style="display:none">छवि का विश्लेषण करें</button>
                 </div>
+
+                <!-- Compact Preview Row -->
+                <div id="disease-preview-wrap" class="modal-preview-box" style="display:none;">
+                    <img id="disease-preview-img" src="" alt="Leaf Preview" />
+                    <div class="modal-preview-info">
+                        <p id="disease-selected-name">Selected leaf</p>
+                        <span>Ready for AI Analysis</span>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="modal-action-bar">
+                    <button type="button" id="analyze-disease-en" class="en action-btn">🔬 Analyze Disease</button>
+                    <button type="button" id="analyze-disease-hi" class="hi action-btn" style="display:none">🔬 रोग का विश्लेषण करें</button>
+                </div>
+
+                <!-- Result Area -->
                 <div id="disease-result" style="display:none;">
-                    <h3 class="en">Detection Result</h3>
-                    <h3 class="hi" style="display:none">पहचान परिणाम</h3>
                     <div id="result-content"></div>
                 </div>
             </div>
@@ -151,24 +164,40 @@
         <div id="seed-modal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h2 class="en">Seed Identification</h2>
-                <h2 class="hi" style="display:none">बीज पहचान</h2>
-                <div class="upload-area">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p class="en">Upload seed image for identification</p>
-                    <p class="hi" style="display:none">पहचान के लिए बीज छवि अपलोड करें</p>
+                <h2 class="en">Crop Seed Identification</h2>
+                <h2 class="hi" style="display:none">फसल बीज पहचान</h2>
+                
+                <!-- Compact Upload Area -->
+                <div class="upload-area" id="seed-upload-area">
+                    <i class="fas fa-seedling upload-icon" style="color: #10b981;"></i>
+                    <p class="en upload-hint" id="seed-file-label">Click to select crop seed image</p>
+                    <p class="hi upload-hint" id="seed-file-label-hi" style="display:none">बीज की तस्वीर चुनने के लिए क्लिक करें</p>
+                    <span class="upload-subtext en">Apple, Pomegranate, Wheat, Rice, Corn, Soybean, Sunflower</span>
+                    <span class="upload-subtext hi" style="display:none">सेब, अनार, गेहूं, चावल, मक्का, सोयाबीन, सूरजमुखी</span>
                     <input type="file" id="seed-image" accept="image/*">
-                    <button id="identify-seed" class="en">Identify Seed</button>
-                    <button id="identify-seed" class="hi" style="display:none">बीज की पहचान करें</button>
                 </div>
+
+                <!-- Compact Preview Row -->
+                <div id="seed-preview-wrap" class="modal-preview-box" style="display:none;">
+                    <img id="seed-preview-img" src="" alt="Seed Preview" />
+                    <div class="modal-preview-info">
+                        <p id="seed-selected-name">Selected seed</p>
+                        <span>Ready for AI Identification</span>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="modal-action-bar">
+                    <button type="button" id="identify-seed-en" class="en action-btn">🌱 Identify Seed</button>
+                    <button type="button" id="identify-seed-hi" class="hi action-btn" style="display:none">🌱 बीज की पहचान करें</button>
+                </div>
+
+                <!-- Result Area -->
                 <div id="seed-result" style="display:none;">
-                    <h3 class="en">Identification Result</h3>
-                    <h3 class="hi" style="display:none">पहचान परिणाम</h3>
                     <div id="seed-result-content"></div>
                 </div>
             </div>
-        </div>
-    </main>
+        </div></main>
 
     <!-- Footer -->
     <footer>
@@ -245,7 +274,6 @@
   </div>
 </div>
 
- <button id="open-tips-btn"></button>Read More</button>
 
   <div id="tips-box">
   <!-- header strip pinned top-right -->
@@ -266,7 +294,6 @@
 
 
 
-  <script src="weather_frontend/weatherscript.js"></script>
    <script src="chatbot/chatbot.js"></script>
    <script src="farming_tips_ui/tips.js"></script>
 

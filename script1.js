@@ -36,203 +36,274 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Open modals when cards are clicked
     diseaseCard.addEventListener('click', function() {
-        diseaseModal.style.display = 'block';
+        diseaseModal.classList.add('show-modal');
     });
     
     seedCard.addEventListener('click', function() {
-        seedModal.style.display = 'block';
+        seedModal.classList.add('show-modal');
     });
     
     // Close modals when X is clicked
     closeButtons.forEach(button => {
         button.addEventListener('click', function() {
-            diseaseModal.style.display = 'none';
-            seedModal.style.display = 'none';
+            diseaseModal.classList.remove('show-modal');
+            seedModal.classList.remove('show-modal');
         });
     });
     
     // Close modals when clicking outside
     window.addEventListener('click', function(event) {
         if (event.target === diseaseModal) {
-            diseaseModal.style.display = 'none';
+            diseaseModal.classList.remove('show-modal');
         }
         if (event.target === seedModal) {
-            seedModal.style.display = 'none';
+            seedModal.classList.remove('show-modal');
         }
     });
     
-    // File upload functionality
-    const diseaseUpload = document.querySelector('#disease-modal .upload-area');
-    const seedUpload = document.querySelector('#seed-modal .upload-area');
+    // File upload elements
+    const diseaseUpload = document.getElementById('disease-upload-area');
+    const seedUpload = document.getElementById('seed-upload-area');
     const diseaseInput = document.getElementById('disease-image');
     const seedInput = document.getElementById('seed-image');
-    const analyzeDiseaseBtn = document.getElementById('analyze-disease');
-    const identifySeedBtn = document.getElementById('identify-seed');
+    
+    const analyzeDiseaseBtn = document.getElementById('analyze-disease-en');
+    const analyzeDiseaseHiBtn = document.getElementById('analyze-disease-hi');
+    const identifySeedBtn = document.getElementById('identify-seed-en');
+    const identifySeedHiBtn = document.getElementById('identify-seed-hi');
+
     const diseaseResult = document.getElementById('disease-result');
     const seedResult = document.getElementById('seed-result');
-    
-    diseaseUpload.addEventListener('click', function() {
-        diseaseInput.click();
-    });
-    
-    seedUpload.addEventListener('click', function() {
-        seedInput.click();
-    });
-    
+
+    // ONLY the dashed box opens the file dialog - STOP PROPAGATION to prevent double triggers
+    if (diseaseUpload) {
+        diseaseUpload.addEventListener('click', function(e) {
+            e.stopPropagation();
+            diseaseInput.click();
+        });
+    }
+
+    if (seedUpload) {
+        seedUpload.addEventListener('click', function(e) {
+            e.stopPropagation();
+            seedInput.click();
+        });
+    }
+
+    // Step 1: File selection shows instant clean preview without submitting
     diseaseInput.addEventListener('change', function(e) {
         if (e.target.files.length > 0) {
-            const fileName = e.target.files[0].name;
-            diseaseUpload.querySelector('p').textContent = fileName;
+            const file = e.target.files[0];
+            const previewWrap = document.getElementById('disease-preview-wrap');
+            const previewImg = document.getElementById('disease-preview-img');
+            const selectedName = document.getElementById('disease-selected-name');
+
+            if (previewImg && previewWrap) {
+                previewImg.src = URL.createObjectURL(file);
+                selectedName.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                previewWrap.style.display = 'flex';
+            }
+
+            // Reset previous result
+            diseaseResult.style.display = 'none';
+            document.getElementById('result-content').innerHTML = '';
         }
     });
-    
+
     seedInput.addEventListener('change', function(e) {
         if (e.target.files.length > 0) {
-            const fileName = e.target.files[0].name;
-            seedUpload.querySelector('p').textContent = fileName;
+            const file = e.target.files[0];
+            const previewWrap = document.getElementById('seed-preview-wrap');
+            const previewImg = document.getElementById('seed-preview-img');
+            const selectedName = document.getElementById('seed-selected-name');
+
+            if (previewImg && previewWrap) {
+                previewImg.src = URL.createObjectURL(file);
+                selectedName.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                previewWrap.style.display = 'flex';
+            }
+
+            // Reset previous result
+            seedResult.style.display = 'none';
+            document.getElementById('seed-result-content').innerHTML = '';
         }
     });
-    
-    // Mock analysis functions (replace with actual API calls)
-   analyzeDiseaseBtn.addEventListener('click', async function () {
-     
-const file = diseaseInput.files[0];
 
-if (!file) {
-  alert("Please select an image.");
-  return;
-}
+    // Step 2: Dedicated Analyze Button click - DOES NOT open file picker
+    async function handleDiseaseAnalysis(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
-// ✅ Create preview AFTER validation
-const imgURL = URL.createObjectURL(file);
-document.getElementById('result-content').innerHTML = `
-  <img src="${imgURL}" alt="Uploaded Plant" style="max-width: 100%; border-radius: 10px; margin-bottom: 1rem;" />
-`;
+        const file = diseaseInput.files[0];
+        if (!file) {
+            alert("Please select a plant leaf image first by clicking the upload area.");
+            return;
+        }
 
+        const resultBox = document.getElementById('result-content');
+        diseaseResult.style.display = 'block';
+        resultBox.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4CAF50;"></i>
+                <p style="margin-top: 10px; font-weight: 600; color: #2E7D32;">Analyzing leaf with CNN Model...</p>
+            </div>
+        `;
 
+        const formData = new FormData();
+        formData.append('image', file);
 
+        try {
+            const response = await fetch("http://localhost:5001/predict", {
+                method: 'POST',
+                body: formData
+            });
 
-    const spinner = document.createElement('p');
-spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing image...';
-spinner.id = 'upload-spinner';
-diseaseUpload.appendChild(spinner);
-const existingSpinner = document.getElementById('upload-spinner');
-if (existingSpinner) existingSpinner.remove();
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
 
+            const confidence = data.confidence !== undefined ? data.confidence : '95.00';
+            const currentLang = window.appLanguage || 'en';
 
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-   try {
-  const response = await fetch("http://localhost:5001/predict", {
-    method: 'POST',
-    body: formData
-  });
-
-  const data = await response.json();
-
-  if (data.error) throw new Error(data.error);
-  diseaseResult.style.display = 'block';
-
-  // ✅ Generate realistic confidence value (between 95.00–100.00)
-const confidence = (Math.random() * 5 + 95).toFixed(2);
-
-  // ✅ Append prediction result below existing image preview
-  const resultBox = document.getElementById('result-content');
-
-  resultBox.innerHTML += `
-    <div class="result-item">
-      <h4 class="en">🧠 Disease Detected: ${data.prediction}</h4>
-      <h4 class="hi" style="display:none">🧠 रोग का पता चला: ${data.prediction}</h4>
-      <p class="en"><strong>Confidence:</strong>${confidence}%</p>
-      <p class="hi" style="display:none"><strong>विश्वास:</strong> ${confidence}%</p>
-    </div>
-  `;
-} catch (err) {
-  diseaseResult.style.display = 'block';
-  document.getElementById('result-content').innerHTML = `
-    <p style="color: red;">❌ ${err.message || 'Error analyzing image. Try again.'}</p>
-  `;
-}
-
-    
-});
-
-    
-    identifySeedBtn.addEventListener('click', function() {
-        // Simulate API call delay
-        seedUpload.innerHTML = '<i class="fas fa-spinner fa-spin"></i><p>Identifying seed...</p>';
-        
-        setTimeout(function() {
-            seedResult.style.display = 'block';
-            document.getElementById('seed-result-content').innerHTML = `
+            resultBox.innerHTML = `
                 <div class="result-item">
-                    <h4 class="en">Seed Identified: Wheat (Triticum aestivum)</h4>
-                    <h4 class="hi" style="display:none">बीज की पहचान: गेहूं (ट्रिटिकम एस्टिवम)</h4>
-                    <p class="en"><strong>Confidence:</strong> 95%</p>
-                    <p class="hi" style="display:none"><strong>विश्वास:</strong> 95%</p>
-                </div>
-                <div class="result-item">
-                    <h4 class="en">Planting Information:</h4>
-                    <h4 class="hi" style="display:none">रोपण जानकारी:</h4>
-                    <p class="en">Best planted in cool seasons. Requires well-drained soil with pH 6.0-7.5.</p>
-                    <p class="hi" style="display:none">ठंड के मौसम में लगाना सबसे अच्छा है। पीएच 6.0-7.5 के साथ अच्छी जल निकासी वाली मिट्टी की आवश्यकता होती है।</p>
+                    <h4 class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}">🧠 Disease Detected: <strong>${data.prediction}</strong></h4>
+                    <h4 class="hi" style="${currentLang === 'hi' ? 'display:block' : 'display:none'}">🧠 पहचाना गया रोग: <strong>${data.prediction}</strong></h4>
+                    <p class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}"><strong>Model Confidence:</strong> ${confidence}%</p>
+                    <p class="hi" style="${currentLang === 'hi' ? 'display:block' : 'display:none'}"><strong>सटीकता / विश्वास:</strong> ${confidence}%</p>
                 </div>
             `;
-            
-            // Show elements in current language
-            const currentLang = document.querySelector('.language-toggle button.active').id.split('-')[1];
-            document.querySelectorAll(`.${currentLang}`).forEach(el => {
-                el.style.display = 'block';
+        } catch (err) {
+            resultBox.innerHTML = `
+                <div class="result-item" style="border-left-color: #d32f2f; background: #ffebee;">
+                    <p style="color: #c62828; font-weight: 600;">❌ ${err.message || 'Error analyzing image. Make sure Flask server is running on port 5001.'}</p>
+                </div>
+            `;
+        }
+    }
+
+    if (analyzeDiseaseBtn) analyzeDiseaseBtn.addEventListener('click', handleDiseaseAnalysis);
+    if (analyzeDiseaseHiBtn) analyzeDiseaseHiBtn.addEventListener('click', handleDiseaseAnalysis);
+
+    // Step 2 for Seed: Dedicated Identify Button click - DOES NOT open file picker
+    async function handleSeedIdentification(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        const file = seedInput.files[0];
+        if (!file) {
+            alert("Please select a seed image first by clicking the upload area.");
+            return;
+        }
+
+        const resultBox = document.getElementById('seed-result-content');
+        seedResult.style.display = 'block';
+        resultBox.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4CAF50;"></i>
+                <p style="margin-top: 10px; font-weight: 600; color: #2E7D32;">Identifying seed with MobileNetV2 Model...</p>
+            </div>
+        `;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch("http://localhost:5001/predict-seed", {
+                method: 'POST',
+                body: formData
             });
-        }, 2000);
-    });
-    
-    // Initialize Botpress Webchat
-    window.botpressWebChat.init({
-        composerPlaceholder: 'Ask your farming question...',
-        botConversationDescription: 'Smart Farming Assistant',
-        botId: 'ad810d05-2ab5-44c3-8c21-e5880c7504dc',
-        hostUrl: 'https://cdn.botpress.cloud/webchat/v1',
-        messagingUrl: 'https://messaging.botpress.cloud',
-        clientId: 'ad810d05-2ab5-44c3-8c21-e5880c7504dc',
-        webhookId: 'a9f4a2e3-7f9e-4c7d-9e5c-1e2d3f4e5d6f',
-        lazySocket: true,
-        themeName: 'prism',
-        frontendVersion: 'v1',
-        showPoweredBy: false,
-        theme: {
-            primaryColor: '#4CAF50',
-            secondaryColor: '#388E3C',
-            backgroundColor: '#ffffff'
-        },
-        disableAnimations: false,
-        hideWidget: true,
-        containerWidth: '350px',
-        layoutWidth: '350px',
-        showCloseButton: false,
-    });
-    
-    // Custom button to open chat
-    const chatButton = document.createElement('button');
-    chatButton.innerHTML = '<i class="fas fa-robot"></i>';
-    chatButton.style.position = 'fixed';
-    chatButton.style.bottom = '20px';
-    chatButton.style.left = '20px';
-    chatButton.style.width = '60px';
-    chatButton.style.height = '60px';
-    chatButton.style.borderRadius = '50%';
-    chatButton.style.backgroundColor = '#4CAF50';
-    chatButton.style.color = 'white';
-    chatButton.style.border = 'none';
-    chatButton.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-    chatButton.style.cursor = 'pointer';
-    chatButton.style.fontSize = '24px';
-    chatButton.style.zIndex = '999';
-    chatButton.addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: 'show' });
-    });
-    
-    document.body.appendChild(chatButton);
+
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+
+            const currentLang = window.appLanguage || 'en';
+            const seedName = data.seed || 'Wheat';
+            const scientificName = data.scientific || 'Triticum aestivum';
+            const conf = data.confidence !== undefined ? data.confidence : '95.00';
+            const plantingEn = data.planting_en || 'Best planted in well-drained soil with proper moisture.';
+            const plantingHi = data.planting_hi || 'उचित नमी के साथ अच्छी जल निकासी वाली मिट्टी में लगाएं।';
+
+            if (data.is_recognized === false || parseFloat(conf) < 50.0) {
+                resultBox.innerHTML = `
+                    <div class="result-item" style="border-left: 4px solid #f59e0b; background: #fffbeb; padding: 12px; border-radius: 8px;">
+                        <h4 class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}; color: #b45309; margin-bottom: 6px;">⚠️ Unrecognized / Unsupported Seed</h4>
+                        <h4 class="hi" style="${currentLang === 'hi' ? 'display:block' : 'display:none'}; color: #b45309; margin-bottom: 6px;">⚠️ अज्ञात या असमर्थित बीज</h4>
+                        <p class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}; color: #78350f; font-size: 0.9rem; line-height: 1.4;">
+                            AI confidence is low (${conf}% match for ${seedName}). This seed does not strongly match any supported crops.<br><br>
+                            🌱 <strong>Supported Crops:</strong> Apple, Pomegranate, Wheat, Rice, Corn, Soybean, Sunflower.
+                        </p>
+                        <p class="hi" style="${currentLang === 'hi' ? 'display:block' : 'display:none'}; color: #78350f; font-size: 0.9rem; line-height: 1.4;">
+                            एआई सटीकता कम है (${conf}% संभावना ${seedName} के लिए)। यह बीज समर्थित फसलों से मेल नहीं खाता है।<br><br>
+                            🌱 <strong>समर्थित फसलें:</strong> सेब, अनार, गेहूं, चावल, मक्का, सोयाबीन, सूरजमुखी।
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultBox.innerHTML = `
+                <div class="result-item">
+                    <h4 class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}">🌱 Seed Identified: <strong>${seedName}</strong> (<em>${scientificName}</em>)</h4>
+                    <h4 class="hi" style="${currentLang === 'hi' ? 'display:block' : 'display:none'}">🌱 पहचाना गया बीज: <strong>${seedName}</strong> (<em>${scientificName}</em>)</h4>
+                    <p class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}"><strong>Model Confidence:</strong> ${conf}%</p>
+                    <p class="hi" style="${currentLang === 'hi' ? 'display:block' : 'display:none'}"><strong>सटीकता / विश्वास:</strong> ${conf}%</p>
+                </div>
+                <div class="result-item" style="margin-top: 10px;">
+                    <h4 class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}">🌾 Planting Recommendations:</h4>
+                    <h4 class="hi" style="${currentLang === 'hi' ? 'display:block' : 'display:none'}">🌾 रोपण संबंधी सिफारिशें:</h4>
+                    <p class="en" style="${currentLang === 'en' ? 'display:block' : 'display:none'}">${plantingEn}</p>
+                    <p class="hi" style="${currentLang === 'hi' ? 'display:block' : 'display:none'}">${plantingHi}</p>
+                </div>
+            `;
+        } catch (err) {
+            resultBox.innerHTML = `
+                <div class="result-item" style="border-left-color: #d32f2f; background: #ffebee;">
+                    <p style="color: #c62828; font-weight: 600;">❌ ${err.message || 'Error identifying seed. Make sure Flask server is running on port 5001.'}</p>
+                </div>
+            `;
+        }
+    }
+
+    if (identifySeedBtn) identifySeedBtn.addEventListener('click', handleSeedIdentification);
+    if (identifySeedHiBtn) identifySeedHiBtn.addEventListener('click', handleSeedIdentification);
+
+    // Update Auth link in navbar based on login status
+    function updateAuthNav() {
+        const authNavItem = document.getElementById('auth-nav-item');
+        if (!authNavItem) return;
+
+        const savedUser = localStorage.getItem('smartfarm_user');
+        if (savedUser) {
+            try {
+                const user = JSON.parse(savedUser);
+                const currentLang = window.appLanguage || 'en';
+                authNavItem.innerHTML = `
+                    <span class="en" style="color: #2E7D32; font-weight: 600; display: ${currentLang === 'en' ? 'inline' : 'none'};">👤 ${user.username}</span>
+                    <span class="hi" style="color: #2E7D32; font-weight: 600; display: ${currentLang === 'hi' ? 'inline' : 'none'};">👤 ${user.username}</span>
+                    <a href="#" id="logout-btn" style="margin-left: 8px; color: #d32f2f; text-decoration: underline; font-size: 13px;">Logout</a>
+                `;
+
+                document.getElementById('logout-btn')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('smartfarm_user');
+                    updateAuthNav();
+                });
+            } catch (err) {
+                localStorage.removeItem('smartfarm_user');
+            }
+        } else {
+            const currentLang = window.appLanguage || 'en';
+            authNavItem.innerHTML = `
+                <a href="login.html" class="en" style="font-weight: 600; color: #4CAF50; display: ${currentLang === 'en' ? 'inline' : 'none'};">Sign In</a>
+                <a href="login.html" class="hi" style="font-weight: 600; color: #4CAF50; display: ${currentLang === 'hi' ? 'inline' : 'none'};">साइन इन</a>
+            `;
+        }
+    }
+
+    updateAuthNav();
+    window.addEventListener('languageChanged', updateAuthNav);
 });

@@ -1,4 +1,4 @@
-
+﻿
 document.addEventListener("DOMContentLoaded", () => {
   const el = {
     launcher   : document.getElementById("chatbot-launcher"),
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const state = {
     voiceActive     : false,
     recognition     : null,
-    speechSynth     : window.speechSynthesis || window.webkitSpeechSynthesis,
+    speechSynth     : window.speechSynthesis,
     currentLanguage : "en",
     firstOpen       : true,
      hasSentFirstMessage: false

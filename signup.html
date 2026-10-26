@@ -3,22 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Farming - Signup</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Smart Farming - Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg: #f4f7f6;
+            --card: #ffffff;
+            --text: #333333;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body {
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: var(--card);
+            max-width: 420px;
+            width: 100%;
+            padding: 36px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border-top: 5px solid var(--primary);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            color: var(--primary-dark);
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: var(--primary);
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        button[type="submit"]:hover {
+            background: var(--primary-dark);
+        }
+        .alert {
+            display: none;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .alert.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            display: block;
+        }
+        .alert.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            display: block;
+        }
+        .footer-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .footer-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Sign Up</h1>
-        <form action="php/signup.php" method="POST">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">Sign Up</button>
+        <div class="header">
+            <h1>🌱 Join Smart Farming</h1>
+            <p>Create your free farming account</p>
+        </div>
+
+        <div id="alert-box" class="alert"></div>
+
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="username">Full Name / Username</label>
+                <input type="text" id="username" name="username" placeholder="Farmer Ram" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="farmer@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password (min 6 characters)</label>
+                <input type="password" id="password" name="password" minlength="6" placeholder="••••••••" required>
+            </div>
+            <button type="submit" id="submit-btn">Create Account</button>
         </form>
-        <p>Already have an account? <a href="index.html">Login here</a></p>
+
+        <p class="footer-link">Already registered? <a href="login.html">Log In here</a></p>
+        <p class="footer-link" style="margin-top: 8px;"><a href="dh.html">← Back to Dashboard</a></p>
     </div>
+
+    <script>
+        const form = document.getElementById('signup-form');
+        const alertBox = document.getElementById('alert-box');
+        const submitBtn = document.getElementById('submit-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alertBox.className = 'alert';
+            alertBox.style.display = 'none';
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating account...';
+
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alertBox.className = 'alert success';
+                    alertBox.textContent = 'Account created successfully! Redirecting to login...';
+                    alertBox.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    alertBox.className = 'alert error';
+                    alertBox.textContent = data.message || 'Signup failed.';
+                    alertBox.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Account';
+                }
+            } catch (err) {
+                alertBox.className = 'alert error';
+                alertBox.textContent = 'Server connection error. Make sure the backend is running.';
+                alertBox.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account';
+            }
+        });
+    </script>
 </body>
 </html>
