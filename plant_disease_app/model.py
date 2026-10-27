@@ -44,11 +44,11 @@ _disease_model = None
 def get_disease_model():
     global _disease_model
     if _disease_model is None:
-        print("🌿 Loading plant disease model into memory...")
+        print("[INFO] Loading plant disease model into memory...")
         m = build_disease_model()
         m.load_weights(MODEL_PATH)
         _disease_model = m
-        print("✅ Plant disease model loaded successfully.")
+        print("[INFO] Plant disease model loaded successfully.")
     return _disease_model
 
 # Exactly 23 classes as trained in Train_Plant_Disease1.ipynb
@@ -87,7 +87,7 @@ def predict_disease(image_path):
             pred_class, conf = gemini_res
             return pred_class, conf
     except Exception as e:
-        print("⚠️ Gemini disease vision error, using local CNN fallback:", e)
+        print("[INFO] Gemini disease vision error, using local CNN fallback:", str(e).encode('ascii', 'ignore').decode('ascii'))
 
     # 2. Fallback: Local CNN Model
     model = get_disease_model()

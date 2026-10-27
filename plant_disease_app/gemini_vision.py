@@ -4,8 +4,8 @@ import json
 import requests
 
 # Gemini API configuration for AI vision intelligence
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyBUMhspJisiYPahxXM7m6kHWF76B4s9kc8')
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyBuMhsp3iq1YPahvXM7nGkHWF78B4sBks8')
+MODELS_TO_TRY = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash']
 
 SUPPORTED_SEEDS = ['Apple', 'Corn', 'Pomegranate', 'Rice', 'Soybean', 'Sunflower', 'Wheat']
 
@@ -64,15 +64,20 @@ def identify_seed_with_gemini(image_path):
             }
         }
         
-        res = requests.post(GEMINI_URL, json=payload, timeout=15)
-        if res.status_code == 200:
-            data = res.json()
-            raw_text = data['candidates'][0]['content']['parts'][0]['text']
-            parsed = clean_json_response(raw_text)
-            if 'seed' in parsed and 'confidence' in parsed:
-                return parsed
+        for model_name in MODELS_TO_TRY:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+            try:
+                res = requests.post(url, json=payload, timeout=12)
+                if res.status_code == 200:
+                    data = res.json()
+                    raw_text = data['candidates'][0]['content']['parts'][0]['text']
+                    parsed = clean_json_response(raw_text)
+                    if 'seed' in parsed and 'confidence' in parsed:
+                        return parsed
+            except Exception:
+                continue
     except Exception as e:
-        print("⚠️ Gemini seed vision fallback to local model:", e)
+        print("[INFO] Gemini seed vision fallback to local model:", str(e).encode('ascii', 'ignore').decode('ascii'))
     return None
 
 def identify_disease_with_gemini(image_path):
@@ -105,14 +110,19 @@ def identify_disease_with_gemini(image_path):
             }
         }
         
-        res = requests.post(GEMINI_URL, json=payload, timeout=15)
-        if res.status_code == 200:
-            data = res.json()
-            raw_text = data['candidates'][0]['content']['parts'][0]['text']
-            parsed = clean_json_response(raw_text)
-            pred = parsed.get('prediction')
-            if pred and pred in SUPPORTED_DISEASES:
-                return pred, float(parsed.get('confidence', 92.0))
+        for model_name in MODELS_TO_TRY:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+            try:
+                res = requests.post(url, json=payload, timeout=12)
+                if res.status_code == 200:
+                    data = res.json()
+                    raw_text = data['candidates'][0]['content']['parts'][0]['text']
+                    parsed = clean_json_response(raw_text)
+                    pred = parsed.get('prediction')
+                    if pred and pred in SUPPORTED_DISEASES:
+                        return pred, float(parsed.get('confidence', 92.0))
+            except Exception:
+                continue
     except Exception as e:
-        print("⚠️ Gemini disease vision fallback to local model:", e)
+        print("[INFO] Gemini disease vision fallback to local model:", str(e).encode('ascii', 'ignore').decode('ascii'))
     return None

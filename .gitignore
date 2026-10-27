@@ -30,4 +30,5 @@ Thumbs.db
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
+seed_dataset_augmented/
 

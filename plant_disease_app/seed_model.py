@@ -16,9 +16,9 @@ _seed_model = None
 def get_seed_model():
     global _seed_model
     if _seed_model is None:
-        print("🌱 Loading seed model into memory...")
+        print("[INFO] Loading seed model into memory...")
         _seed_model = load_model(MODEL_PATH, compile=False)
-        print("✅ Seed model loaded successfully.")
+        print("[INFO] Seed model loaded successfully.")
     return _seed_model
 
 seed_classes = ['Apple', 'Corn', 'Pomegranate', 'Rice', 'Soybean', 'Sunflower', 'Wheat']
@@ -81,12 +81,13 @@ def predict_seed(image_path):
             }
             return name, conf, info
     except Exception as e:
-        print("⚠️ Gemini vision error, using local CNN fallback:", e)
+        print("[INFO] Gemini vision error, using local CNN fallback:", str(e).encode('ascii', 'ignore').decode('ascii'))
 
     # 2. Fallback: Local CNN Model
+    from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
     model = get_seed_model()
     img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
-    arr = tf.keras.preprocessing.image.img_to_array(img) / 255.0
+    arr = preprocess_input(tf.keras.preprocessing.image.img_to_array(img))
     arr = np.expand_dims(arr, axis=0)
     preds = model(arr, training=False).numpy()
     idx = int(np.argmax(preds[0]))
