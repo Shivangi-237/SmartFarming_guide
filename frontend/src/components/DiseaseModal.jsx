@@ -46,7 +46,6 @@ export default function DiseaseModal({ isOpen, onClose }) {
     onClose();
   };
 
-  // Format label: "Tomato___Early_blight" -> "Tomato: Early Blight"
   const formatLabel = (raw) => {
     if (!raw) return '';
     const parts = raw.split('___');
@@ -56,14 +55,33 @@ export default function DiseaseModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={resetModal}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: '24px' }}>
+    <div className="modal-backdrop" onClick={resetModal}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ padding: '28px' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.35rem', color: '#065f46', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className="fa-solid fa-virus" style={{ color: '#10b981' }}></i>
-            {t.modalDiseaseTitle}
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: '#ecfdf5',
+              color: '#059669',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.2rem'
+            }}>
+              <i className="fa-solid fa-leaf"></i>
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.25rem', color: '#064e3b' }}>
+                {t.modalDiseaseTitle}
+              </h3>
+              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                23 Supported Plant Leaf Disease Categories
+              </span>
+            </div>
+          </div>
           <button
             onClick={resetModal}
             style={{
@@ -81,15 +99,16 @@ export default function DiseaseModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Upload Dropzone */}
+        {/* Upload Area */}
         <div style={{
-          border: '2px dashed #cbd5e1',
+          border: '2px dashed #94a3b8',
           borderRadius: '16px',
           padding: '24px 16px',
           textAlign: 'center',
           background: '#f8fafc',
           cursor: 'pointer',
-          marginBottom: '20px'
+          marginBottom: '20px',
+          transition: 'all 0.2s ease'
         }}>
           <input
             type="file"
@@ -100,26 +119,36 @@ export default function DiseaseModal({ isOpen, onClose }) {
           />
           <label htmlFor="disease-file-input" style={{ cursor: 'pointer', display: 'block' }}>
             {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Selected Leaf"
-                style={{
-                  maxHeight: '180px',
-                  maxWidth: '100%',
-                  borderRadius: '12px',
-                  objectFit: 'cover',
-                  margin: '0 auto',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                }}
-              />
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <img
+                  src={previewUrl}
+                  alt="Selected Leaf"
+                  style={{
+                    maxHeight: '180px',
+                    maxWidth: '100%',
+                    borderRadius: '12px',
+                    objectFit: 'cover',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }}
+                />
+                <span style={{
+                  display: 'block',
+                  marginTop: '8px',
+                  fontSize: '0.8rem',
+                  color: '#059669',
+                  fontWeight: '600'
+                }}>
+                  Click to choose different image
+                </span>
+              </div>
             ) : (
               <div>
                 <i className="fa-solid fa-cloud-arrow-up" style={{ fontSize: '2.5rem', color: '#10b981', marginBottom: '8px' }}></i>
-                <p style={{ fontWeight: '600', color: '#334155', marginBottom: '4px' }}>
+                <p style={{ fontWeight: '700', color: '#1e293b', marginBottom: '4px', fontSize: '0.98rem' }}>
                   {t.modalDiseasePrompt}
                 </p>
-                <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-                  PNG, JPG, or JPEG up to 5MB
+                <span style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                  Drag & drop or browse PNG, JPG (up to 5MB)
                 </span>
               </div>
             )}
@@ -128,28 +157,29 @@ export default function DiseaseModal({ isOpen, onClose }) {
 
         {/* File name info */}
         {selectedFile && (
-          <p style={{ fontSize: '0.88rem', color: '#64748b', textAlign: 'center', marginBottom: '16px' }}>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', textAlign: 'center', marginBottom: '16px' }}>
             <i className="fa-regular fa-image" style={{ marginRight: '6px' }}></i>
             {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
           </p>
         )}
 
-        {/* Action Button */}
+        {/* Analyze Button */}
         <button
           onClick={handleAnalyze}
           disabled={!selectedFile || loading}
-          className="btn-primary"
+          className="btn-modern-primary"
           style={{
             width: '100%',
-            padding: '12px',
+            padding: '13px',
             fontSize: '1rem',
-            opacity: (!selectedFile || loading) ? 0.6 : 1,
-            cursor: (!selectedFile || loading) ? 'not-allowed' : 'pointer'
+            opacity: (!selectedFile || loading) ? 0.55 : 1,
+            cursor: (!selectedFile || loading) ? 'not-allowed' : 'pointer',
+            borderRadius: '12px'
           }}
         >
           {loading ? (
             <>
-              <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2.5px', margin: 0 }}></div>
+              <div className="spinner-pulse" style={{ width: '20px', height: '20px', borderWidth: '2.5px' }}></div>
               {t.analyzing}
             </>
           ) : (
@@ -169,7 +199,7 @@ export default function DiseaseModal({ isOpen, onClose }) {
             background: '#fef2f2',
             border: '1px solid #fecaca',
             color: '#b91c1c',
-            fontSize: '0.9rem',
+            fontSize: '0.88rem',
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
@@ -179,39 +209,50 @@ export default function DiseaseModal({ isOpen, onClose }) {
           </div>
         )}
 
-        {/* Analysis Result Card */}
+        {/* Result Box */}
         {result && (
           <div style={{
             marginTop: '20px',
-            padding: '16px',
-            borderRadius: '14px',
+            padding: '18px',
+            borderRadius: '16px',
             background: '#f0fdf4',
             border: '1px solid #bbf7d0',
             animation: 'fadeIn 0.3s ease'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#166534', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span className="pill-badge pill-green">
+                <i className="fa-solid fa-circle-check"></i>
                 {lang === 'hi' ? 'निदान परिणाम' : 'Diagnosis Result'}
               </span>
               <span style={{
-                background: '#10b981',
+                background: '#059669',
                 color: '#ffffff',
-                padding: '3px 10px',
-                borderRadius: '12px',
-                fontSize: '0.82rem',
+                padding: '4px 12px',
+                borderRadius: '9999px',
+                fontSize: '0.85rem',
                 fontWeight: '700'
               }}>
                 {result.confidence}% {lang === 'hi' ? 'सटीकता' : 'Confidence'}
               </span>
             </div>
-            <h4 style={{ fontSize: '1.15rem', color: '#064e3b', marginBottom: '6px' }}>
+
+            <h4 style={{ fontSize: '1.2rem', color: '#064e3b', marginBottom: '8px' }}>
               🌿 {formatLabel(result.prediction)}
             </h4>
-            <p style={{ fontSize: '0.9rem', color: '#15803d', lineHeight: '1.5' }}>
+
+            <div style={{
+              marginTop: '12px',
+              paddingTop: '12px',
+              borderTop: '1px solid #bbf7d0',
+              fontSize: '0.9rem',
+              color: '#15803d',
+              lineHeight: '1.55'
+            }}>
+              <strong>🌾 {lang === 'hi' ? 'कृषि सलाह:' : 'Agronomic Care:'}</strong>{' '}
               {lang === 'hi'
-                ? 'कृषि सलाह: संक्रमित पत्तियों को अलग करें और फफूंदनाशक या अनुशंसित जैविक स्प्रे का उपयोग करें।'
-                : 'Agronomic Guidance: Isolate infected foliage and apply appropriate fungicide or organic neem-based spray.'}
-            </p>
+                ? 'संक्रमित पत्तियों को खेत से हटाएं। उचित फफूंदनाशक या अनुशंसित जैविक नीम तेल स्प्रे का उपयोग करें।'
+                : 'Prune heavily infected leaves to stop spore spread. Maintain canopy ventilation and apply organic copper or neem-based fungicide if necessary.'}
+            </div>
           </div>
         )}
       </div>

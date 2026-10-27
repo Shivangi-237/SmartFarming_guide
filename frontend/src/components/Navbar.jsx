@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const { lang, toggleLanguage, t } = useLanguage();
-  const { user, logout, isAuthenticated } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
@@ -16,133 +13,133 @@ export default function Navbar() {
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      background: 'rgba(255, 255, 255, 0.85)',
-      backdropFilter: 'blur(12px)',
+      background: 'rgba(255, 255, 255, 0.8)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
       borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
-      transition: 'all 0.3s ease'
+      boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.03)'
     }}>
       <div style={{
-        maxWidth: '1200px',
+        maxWidth: '1240px',
         margin: '0 auto',
-        padding: '12px 24px',
+        padding: '14px 24px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        {/* Brand Logo */}
+        {/* Brand Logo & Name */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img
-            src="/leaf.svg"
-            alt="Leaf Logo"
-            style={{ width: '34px', height: '34px', filter: 'drop-shadow(0 2px 4px rgba(16,185,129,0.3))' }}
-          />
-          <span style={{
-            fontSize: '1.25rem',
-            fontWeight: '700',
-            background: 'linear-gradient(135deg, #065f46, #10b981)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            letterSpacing: '-0.02em'
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)'
           }}>
-            {t.appTitle}
-          </span>
+            <img
+              src="/leaf.svg"
+              alt="Smart Farming Guide Logo"
+              style={{ width: '24px', height: '24px' }}
+            />
+          </div>
+          <div>
+            <span style={{
+              fontSize: '1.25rem',
+              fontWeight: '800',
+              background: 'linear-gradient(135deg, #064e3b 0%, #059669 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              letterSpacing: '-0.025em',
+              display: 'block',
+              lineHeight: '1.2'
+            }}>
+              Smart Farming Guide
+            </span>
+            <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: '600', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              {lang === 'hi' ? 'एआई कृषि मंच' : 'AI Agricultural Platform'}
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop Nav Links */}
+        {/* Navigation Links */}
         <nav style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '24px'
+          gap: '8px'
         }}>
           <Link
             to="/"
             style={{
-              fontWeight: isActive('/') ? '600' : '500',
-              color: isActive('/') ? 'var(--primary)' : 'var(--text-muted)',
-              transition: 'color 0.2s ease'
+              padding: '8px 16px',
+              borderRadius: '10px',
+              fontWeight: isActive('/') ? '700' : '500',
+              color: isActive('/') ? '#059669' : '#475569',
+              background: isActive('/') ? '#ecfdf5' : 'transparent',
+              fontSize: '0.92rem',
+              transition: 'all 0.2s ease'
             }}
           >
+            <i className="fa-solid fa-house" style={{ marginRight: '6px', fontSize: '0.85rem' }}></i>
             {t.navHome}
           </Link>
+
           <Link
             to="/weather"
             style={{
-              fontWeight: isActive('/weather') ? '600' : '500',
-              color: isActive('/weather') ? 'var(--primary)' : 'var(--text-muted)',
-              transition: 'color 0.2s ease'
+              padding: '8px 16px',
+              borderRadius: '10px',
+              fontWeight: isActive('/weather') ? '700' : '500',
+              color: isActive('/weather') ? '#0284c7' : '#475569',
+              background: isActive('/weather') ? '#f0f9ff' : 'transparent',
+              fontSize: '0.92rem',
+              transition: 'all 0.2s ease'
             }}
           >
+            <i className="fa-solid fa-cloud-sun-rain" style={{ marginRight: '6px', fontSize: '0.85rem' }}></i>
             {t.navWeather}
           </Link>
+
           <Link
             to="/tips"
             style={{
-              fontWeight: isActive('/tips') ? '600' : '500',
-              color: isActive('/tips') ? 'var(--primary)' : 'var(--text-muted)',
-              transition: 'color 0.2s ease'
+              padding: '8px 16px',
+              borderRadius: '10px',
+              fontWeight: isActive('/tips') ? '700' : '500',
+              color: isActive('/tips') ? '#d97706' : '#475569',
+              background: isActive('/tips') ? '#fffbeb' : 'transparent',
+              fontSize: '0.92rem',
+              transition: 'all 0.2s ease'
             }}
           >
+            <i className="fa-solid fa-lightbulb" style={{ marginRight: '6px', fontSize: '0.85rem' }}></i>
             {t.navTips}
           </Link>
 
-          {/* Language Toggle Button */}
+          {/* Bilingual Language Switcher Pill */}
           <button
             onClick={toggleLanguage}
-            title="Switch Language (English / हिंदी)"
+            title="Toggle Language (English / हिंदी)"
             style={{
+              marginLeft: '8px',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 14px',
+              padding: '7px 14px',
               borderRadius: '20px',
               border: '1px solid #cbd5e1',
               background: '#ffffff',
-              fontSize: '0.85rem',
-              fontWeight: '600',
-              color: 'var(--text-main)',
-              boxShadow: 'var(--shadow-sm)'
+              fontSize: '0.82rem',
+              fontWeight: '700',
+              color: '#065f46',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
             }}
           >
-            <i className="fa-solid fa-language" style={{ color: 'var(--primary)', fontSize: '1rem' }}></i>
-            {lang === 'en' ? 'English (EN)' : 'हिंदी (HI)'}
+            <i className="fa-solid fa-globe" style={{ color: '#10b981' }}></i>
+            {lang === 'en' ? 'EN | हिंदी' : 'हिंदी | EN'}
           </button>
-
-          {/* Authentication Badge */}
-          {isAuthenticated ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                color: 'var(--primary-dark)',
-                background: 'var(--primary-light)',
-                padding: '4px 12px',
-                borderRadius: '16px'
-              }}>
-                <i className="fa-solid fa-user-check" style={{ marginRight: '6px' }}></i>
-                {user.username}
-              </span>
-              <button
-                onClick={logout}
-                style={{
-                  fontSize: '0.85rem',
-                  color: '#ef4444',
-                  background: 'transparent',
-                  fontWeight: '600'
-                }}
-              >
-                {t.navLogout}
-              </button>
-            </div>
-          ) : (
-            <Link
-              to="/login"
-              className="btn-primary"
-              style={{ padding: '7px 18px', fontSize: '0.88rem' }}
-            >
-              <i className="fa-solid fa-right-to-bracket"></i>
-              {t.navLogin}
-            </Link>
-          )}
         </nav>
       </div>
     </header>

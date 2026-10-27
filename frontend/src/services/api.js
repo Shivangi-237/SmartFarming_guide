@@ -121,3 +121,4 @@ export async function predictPlantDisease(imageFile) {
   if (!res.ok) throw new Error(data.error || 'Plant disease analysis failed');
   return data;
 }
+

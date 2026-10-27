@@ -47,14 +47,33 @@ export default function SeedModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={resetModal}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: '24px' }}>
+    <div className="modal-backdrop" onClick={resetModal}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ padding: '28px' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.35rem', color: '#065f46', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className="fa-solid fa-seedling" style={{ color: '#10b981' }}></i>
-            {t.modalSeedTitle}
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
+              background: '#ecfdf5',
+              color: '#059669',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.2rem'
+            }}>
+              <i className="fa-solid fa-seedling"></i>
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.25rem', color: '#064e3b' }}>
+                {t.modalSeedTitle}
+              </h3>
+              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                Supported: Apple, Wheat, Rice, Corn, Pomegranate, Soybean, Sunflower
+              </span>
+            </div>
+          </div>
           <button
             onClick={resetModal}
             style={{
@@ -72,9 +91,9 @@ export default function SeedModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Upload Dropzone */}
+        {/* Upload Area */}
         <div style={{
-          border: '2px dashed #cbd5e1',
+          border: '2px dashed #94a3b8',
           borderRadius: '16px',
           padding: '24px 16px',
           textAlign: 'center',
@@ -91,26 +110,36 @@ export default function SeedModal({ isOpen, onClose }) {
           />
           <label htmlFor="seed-file-input" style={{ cursor: 'pointer', display: 'block' }}>
             {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Selected Seed"
-                style={{
-                  maxHeight: '180px',
-                  maxWidth: '100%',
-                  borderRadius: '12px',
-                  objectFit: 'cover',
-                  margin: '0 auto',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                }}
-              />
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <img
+                  src={previewUrl}
+                  alt="Selected Seed"
+                  style={{
+                    maxHeight: '180px',
+                    maxWidth: '100%',
+                    borderRadius: '12px',
+                    objectFit: 'cover',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }}
+                />
+                <span style={{
+                  display: 'block',
+                  marginTop: '8px',
+                  fontSize: '0.8rem',
+                  color: '#059669',
+                  fontWeight: '600'
+                }}>
+                  Click to choose different image
+                </span>
+              </div>
             ) : (
               <div>
                 <i className="fa-solid fa-wheat-awn" style={{ fontSize: '2.5rem', color: '#10b981', marginBottom: '8px' }}></i>
-                <p style={{ fontWeight: '600', color: '#334155', marginBottom: '4px' }}>
+                <p style={{ fontWeight: '700', color: '#1e293b', marginBottom: '4px', fontSize: '0.98rem' }}>
                   {t.modalSeedPrompt}
                 </p>
-                <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-                  Supported: Apple, Wheat, Rice, Corn, Pomegranate, Soybean, Sunflower
+                <span style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                  Select or drag & drop a clear photo of seeds
                 </span>
               </div>
             )}
@@ -119,28 +148,29 @@ export default function SeedModal({ isOpen, onClose }) {
 
         {/* File name info */}
         {selectedFile && (
-          <p style={{ fontSize: '0.88rem', color: '#64748b', textAlign: 'center', marginBottom: '16px' }}>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', textAlign: 'center', marginBottom: '16px' }}>
             <i className="fa-regular fa-image" style={{ marginRight: '6px' }}></i>
             {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
           </p>
         )}
 
-        {/* Action Button */}
+        {/* Identify Button */}
         <button
           onClick={handleIdentify}
           disabled={!selectedFile || loading}
-          className="btn-primary"
+          className="btn-modern-primary"
           style={{
             width: '100%',
-            padding: '12px',
+            padding: '13px',
             fontSize: '1rem',
-            opacity: (!selectedFile || loading) ? 0.6 : 1,
-            cursor: (!selectedFile || loading) ? 'not-allowed' : 'pointer'
+            opacity: (!selectedFile || loading) ? 0.55 : 1,
+            cursor: (!selectedFile || loading) ? 'not-allowed' : 'pointer',
+            borderRadius: '12px'
           }}
         >
           {loading ? (
             <>
-              <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2.5px', margin: 0 }}></div>
+              <div className="spinner-pulse" style={{ width: '20px', height: '20px', borderWidth: '2.5px' }}></div>
               {t.identifying}
             </>
           ) : (
@@ -160,7 +190,7 @@ export default function SeedModal({ isOpen, onClose }) {
             background: '#fef2f2',
             border: '1px solid #fecaca',
             color: '#b91c1c',
-            fontSize: '0.9rem',
+            fontSize: '0.88rem',
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
@@ -175,17 +205,17 @@ export default function SeedModal({ isOpen, onClose }) {
           <div style={{ marginTop: '20px', animation: 'fadeIn 0.3s ease' }}>
             {result.is_recognized === false || parseFloat(result.confidence) < 25.0 ? (
               <div style={{
-                padding: '16px',
-                borderRadius: '14px',
+                padding: '18px',
+                borderRadius: '16px',
                 background: '#fffbeb',
                 border: '1px solid #fde68a',
                 color: '#92400e'
               }}>
-                <h4 style={{ fontSize: '1.05rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h4 style={{ fontSize: '1.05rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <i className="fa-solid fa-triangle-exclamation"></i>
                   {lang === 'hi' ? 'अज्ञात या असमर्थित बीज' : 'Unrecognized Seed'}
                 </h4>
-                <p style={{ fontSize: '0.88rem', lineHeight: '1.4' }}>
+                <p style={{ fontSize: '0.88rem', lineHeight: '1.5' }}>
                   {lang === 'hi'
                     ? `एआई सटीकता कम है (${result.confidence}% संभावना ${result.seed} के लिए)। कृपया बीज की एक स्पष्ट फोटो अपलोड करें।`
                     : `Confidence is low (${result.confidence}% for ${result.seed}). Please ensure the seed is well-lit and matches supported crops: Apple, Wheat, Rice, Corn, Pomegranate, Soybean, Sunflower.`}
@@ -193,41 +223,42 @@ export default function SeedModal({ isOpen, onClose }) {
               </div>
             ) : (
               <div style={{
-                padding: '18px',
-                borderRadius: '14px',
+                padding: '20px',
+                borderRadius: '16px',
                 background: '#f0fdf4',
                 border: '1px solid #bbf7d0'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#166534', textTransform: 'uppercase' }}>
+                  <span className="pill-badge pill-green">
+                    <i className="fa-solid fa-circle-check"></i>
                     {lang === 'hi' ? 'पहचाना गया बीज' : 'Identified Seed'}
                   </span>
                   <span style={{
-                    background: '#10b981',
+                    background: '#059669',
                     color: '#ffffff',
-                    padding: '3px 10px',
-                    borderRadius: '12px',
-                    fontSize: '0.82rem',
+                    padding: '4px 12px',
+                    borderRadius: '9999px',
+                    fontSize: '0.85rem',
                     fontWeight: '700'
                   }}>
                     {result.confidence}% {lang === 'hi' ? 'सटीकता' : 'Confidence'}
                   </span>
                 </div>
 
-                <h3 style={{ fontSize: '1.3rem', color: '#064e3b', marginBottom: '4px' }}>
+                <h3 style={{ fontSize: '1.4rem', color: '#064e3b', marginBottom: '6px' }}>
                   🌱 {result.seed}
                   {result.scientific && (
-                    <span style={{ fontSize: '0.95rem', fontWeight: '400', fontStyle: 'italic', color: '#047857', marginLeft: '8px' }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: '500', fontStyle: 'italic', color: '#059669', marginLeft: '10px' }}>
                       ({result.scientific})
                     </span>
                   )}
                 </h3>
 
                 <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #bbf7d0' }}>
-                  <h5 style={{ fontSize: '0.9rem', color: '#15803d', fontWeight: '700', marginBottom: '4px' }}>
+                  <h5 style={{ fontSize: '0.92rem', color: '#15803d', fontWeight: '700', marginBottom: '4px' }}>
                     🌾 {t.recommendation}:
                   </h5>
-                  <p style={{ fontSize: '0.9rem', color: '#14532d', lineHeight: '1.5' }}>
+                  <p style={{ fontSize: '0.92rem', color: '#14532d', lineHeight: '1.55' }}>
                     {lang === 'hi' ? (result.planting_hi || result.planting_en) : (result.planting_en || result.planting_hi)}
                   </p>
                 </div>

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const LanguageContext = createContext();
 
@@ -11,9 +11,6 @@ export const translations = {
     navHome: "Home",
     navWeather: "Weather Forecast",
     navTips: "Farming Tips",
-    navLogin: "Login",
-    navSignup: "Sign Up",
-    navLogout: "Logout",
     
     // Feature Cards
     cardDiseaseTitle: "Disease Detection",
@@ -58,9 +55,6 @@ export const translations = {
     navHome: "होम",
     navWeather: "मौसम पूर्वानुमान",
     navTips: "खेती के नुस्खे",
-    navLogin: "लॉग इन",
-    navSignup: "साइन अप",
-    navLogout: "लॉग आउट",
     
     // Feature Cards
     cardDiseaseTitle: "फसल रोग पहचान",
