@@ -293,7 +293,6 @@ export default function Dashboard() {
             paddingTop: '20px',
             borderTop: '1px solid rgba(255, 255, 255, 0.1)'
           }}>
-            Powered by React, Node.js, Python, TensorFlow & Google Gemini AI
           </div>
         </div>
       </footer>

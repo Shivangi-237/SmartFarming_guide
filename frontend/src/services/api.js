@@ -1,19 +1,12 @@
 // Smart Farming Guide - Unified Cloud API Service
 
-const isLocal = Boolean(
-  typeof window !== 'undefined' &&
-  (window.location.hostname === 'localhost' ||
-   window.location.hostname === '127.0.0.1' ||
-   window.location.hostname.startsWith('192.168.'))
-);
+// Points to live Render backend microservices (CORS enabled)
+// Can be overridden with VITE_NODE_API_URL or VITE_ML_API_URL if testing local backends
+export const NODE_API_BASE =
+  import.meta.env.VITE_NODE_API_URL || 'https://smartfarming-guide.onrender.com';
 
-export const NODE_API_BASE = isLocal
-  ? 'http://localhost:5000'
-  : 'https://smartfarming-guide.onrender.com';
-
-export const ML_API_BASE = isLocal
-  ? 'http://localhost:5001'
-  : 'https://smartfarming-ml-oat2.onrender.com';
+export const ML_API_BASE =
+  import.meta.env.VITE_ML_API_URL || 'https://smartfarming-ml-oat2.onrender.com';
 
 // ----- Authentication API -----
 export async function loginUser(username, password) {
