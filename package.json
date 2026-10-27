@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Smart Farming Guide - AI Empowered Agriculture Platform",
   "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
     "start": "node smartfarm_backend/server.js",
     "backend": "cd smartfarm_backend && node server.js"
   },
