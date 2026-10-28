@@ -34,7 +34,7 @@ def build_disease_model():
         layers.Flatten(name='flatten_1'),
         layers.Dense(1500, activation='relu', name='dense_2'),
         layers.Dropout(0.4, name='dropout_3'),
-        layers.Dense(23, activation='softmax', name='dense_3')
+        layers.Dense(24, activation='softmax', name='dense_3')
     ])
     return model
 
@@ -45,13 +45,16 @@ def get_disease_model():
     global _disease_model
     if _disease_model is None:
         print("[INFO] Loading plant disease model into memory...")
-        m = build_disease_model()
-        m.load_weights(MODEL_PATH)
-        _disease_model = m
+        try:
+            _disease_model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+        except Exception:
+            m = build_disease_model()
+            m.load_weights(MODEL_PATH)
+            _disease_model = m
         print("[INFO] Plant disease model loaded successfully.")
     return _disease_model
 
-# Exactly 23 classes as trained in Train_Plant_Disease1.ipynb
+# 24 classes with Grape replacing Potato
 class_names = [
     'Apple___Apple_scab',
     'Apple___Black_rot',
@@ -61,11 +64,12 @@ class_names = [
     'Corn_(maize)___Common_rust_',
     'Corn_(maize)___Northern_Leaf_Blight',
     'Corn_(maize)___healthy',
+    'Grape___Black_rot',
+    'Grape___Esca_(Black_Measles)',
+    'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)',
+    'Grape___healthy',
     'Peach___Bacterial_spot',
     'Peach___healthy',
-    'Potato___Early_blight',
-    'Potato___Late_blight',
-    'Potato___healthy',
     'Tomato___Bacterial_spot',
     'Tomato___Early_blight',
     'Tomato___Late_blight',
@@ -90,9 +94,10 @@ def predict_disease(image_path):
         print("[INFO] Gemini disease vision error, using local CNN fallback:", str(e).encode('ascii', 'ignore').decode('ascii'))
 
     # 2. Fallback: Local CNN Model
+    from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
     model = get_disease_model()
     img = tf.keras.preprocessing.image.load_img(image_path, target_size=(128, 128))
-    arr = tf.keras.preprocessing.image.img_to_array(img)
+    arr = preprocess_input(tf.keras.preprocessing.image.img_to_array(img))
     arr = np.expand_dims(arr, axis=0)
     preds = model(arr, training=False).numpy()
     idx = int(np.argmax(preds[0]))
