@@ -78,7 +78,7 @@ export default function ChatbotWidget() {
 
     try {
       const data = await sendChatMessage(textToSend, chatLang);
-      const botReply = data.reply || (chatLang === 'hi' ? 'उत्तर प्राप्त करने में असमर्थ।' : 'Unable to get answer.');
+      const botReply = data.response || data.reply || data.message || (chatLang === 'hi' ? 'उत्तर प्राप्त करने में असमर्थ।' : 'Unable to get answer.');
       setMessages((prev) => [...prev, { sender: 'bot', text: botReply }]);
       speakText(botReply);
     } catch (err) {

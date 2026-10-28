@@ -109,46 +109,60 @@ export default function TipsPage() {
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         gap: '24px'
       }}>
-        {tips.map((t, idx) => (
-          <div
-            key={idx}
-            className="glass-card"
-            style={{
-              padding: '24px',
-              display: 'flex',
-              flexDirection: 'column',
-              borderLeft: '4px solid #10b981'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: '#ecfdf5',
-                color: '#10b981',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.2rem'
-              }}>
-                <i className={`fa-solid ${t.icon || 'fa-seedling'}`}></i>
-              </div>
-              <div>
-                <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  {t.category || 'Agronomy'}
-                </span>
-                <h3 style={{ fontSize: '1.15rem', color: '#064e3b' }}>
-                  {t.title}
-                </h3>
-              </div>
-            </div>
+        {tips.map((t, idx) => {
+          const isObj = typeof t === 'object' && t !== null;
+          const rawText = isObj ? (t.text || t.tip || t.description || '') : String(t);
+          const hasColon = rawText.includes(':');
+          const tipTitle = isObj && t.title
+            ? t.title
+            : (hasColon ? rawText.split(':')[0].trim() : (lang === 'hi' ? `कृषि सलाह #${idx + 1}` : `Agronomic Tip #${idx + 1}`));
+          const tipBody = (isObj && t.title)
+            ? rawText
+            : (hasColon ? rawText.split(':').slice(1).join(':').trim() : rawText);
+          const tipCategory = isObj && t.category ? t.category : (lang === 'hi' ? 'विशेषज्ञ सलाह' : 'Agronomy');
+          const tipIcon = isObj && t.icon ? t.icon : 'fa-seedling';
 
-            <p style={{ color: '#475569', fontSize: '0.92rem', lineHeight: '1.6' }}>
-              {t.text || t.tip || t.description}
-            </p>
-          </div>
-        ))}
+          return (
+            <div
+              key={idx}
+              className="glass-card"
+              style={{
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                borderLeft: '4px solid #10b981'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                <div style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  background: '#ecfdf5',
+                  color: '#10b981',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.2rem'
+                }}>
+                  <i className={`fa-solid ${tipIcon}`}></i>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {tipCategory}
+                  </span>
+                  <h3 style={{ fontSize: '1.15rem', color: '#064e3b' }}>
+                    {tipTitle}
+                  </h3>
+                </div>
+              </div>
+
+              <p style={{ color: '#475569', fontSize: '0.92rem', lineHeight: '1.6' }}>
+                {tipBody}
+              </p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

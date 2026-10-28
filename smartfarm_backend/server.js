@@ -377,7 +377,7 @@ app.post('/chat', aiLimiter, async (req, res) => {
     const response = await result.response;
     const text = response.text();
 
-    res.json({ response: text, model: 'gemini-2.5-flash' });
+    res.json({ response: text, reply: text, model: 'gemini-2.5-flash' });
 
   } catch (error) {
     console.warn('[Chat] Gemini API unavailable, generating expert agricultural response:', error.message);
@@ -412,7 +412,7 @@ app.post('/chat', aiLimiter, async (req, res) => {
       }
     }
 
-    res.json({ response: reply, model: 'smart-farming-expert' });
+    res.json({ response: reply, reply: reply, model: 'smart-farming-expert' });
   }
 });
 
