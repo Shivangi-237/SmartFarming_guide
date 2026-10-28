@@ -29,6 +29,5 @@ We are now focusing on converting the trained models into APIs so they can be se
 
 
 #OUTPUT
-![Image](https://github.com/user-attachments/assets/3a77000c-e207-403b-aa6a-226c8b414235)
+<img width="1478" height="1358" alt="image" src="https://github.com/user-attachments/assets/ee1a88f6-5d2c-4a4a-bf89-2de76aed4d92" />
 
-![Image](https://github.com/user-attachments/assets/10585f11-cfba-488f-8348-17b192225b61)
