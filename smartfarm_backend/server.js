@@ -380,41 +380,216 @@ app.post('/chat', aiLimiter, async (req, res) => {
     res.json({ response: text, reply: text, model: 'gemini-2.5-flash' });
 
   } catch (error) {
-    console.warn('[Chat] Gemini API unavailable, generating expert agricultural response:', error.message);
-    
-    // Smart agricultural fallback responder for common farming questions
-    const msg = (message || '').toLowerCase();
-    let reply = '';
-    
-    if (language === 'hi') {
-      if (msg.includes('पानी') || msg.includes('सिंचाई') || msg.includes('water')) {
-        reply = "💧 **सिंचाई सलाह:** फसलों में सुबह (6-8 AM) या शाम को पानी दें। ड्रिप सिंचाई से 40-50% पानी की बचत होती है और जड़ों में नमी बनी रहती है।";
-      } else if (msg.includes('खाद') || msg.includes('उर्वरक') || msg.includes('fertilizer') || msg.includes('npk')) {
-        reply = "🌱 **उर्वरक प्रबंधन:** रासायनिक उर्वरकों (NPK) के साथ वर्मीकम्पोस्ट या सड़ी गोबर खाद का प्रयोग करें। बुवाई से पूर्व मिट्टी परीक्षण (Soil Test) जरूर कराएं।";
-      } else if (msg.includes('कीट') || msg.includes('रोग') || msg.includes('pest') || msg.includes('कीड़ा') || msg.includes('फफूंद')) {
-        reply = "🌿 **कीट व रोग नियंत्रण:** शुरुआती प्रकोप में 5 मिली नीम तेल प्रति लीटर पानी में मिलाकर छिड़कें। रोगग्रस्त पत्तियों को तुरंत हटाकर नष्ट कर दें।";
-      } else if (msg.includes('बीज') || msg.includes('seed')) {
-        reply = "🌾 **बीज पहचान व बुवाई:** हमारे डैशबोर्ड के 'Seed Identification' फीचर में बीज की फोटो अपलोड करके रोपण विधि और सही मिट्टी की जानकारी पाएं।";
-      } else {
-        reply = "👨‍🌾 **नमस्ते किसान भाई!** मैं आपका स्मार्ट फार्मिंग सहायक हूँ। आप मुझसे मौसम, सिंचाई, खाद, बीज पहचान, या फसल रोगों के बारे में पूछ सकते हैं।";
-      }
-    } else {
-      if (msg.includes('water') || msg.includes('irrigation')) {
-        reply = "💧 **Irrigation Advice:** Water crops early in the morning (6-8 AM) or late evening to minimize evaporation. Drip irrigation saves 40-50% water while maintaining optimal root zone moisture.";
-      } else if (msg.includes('fertilizer') || msg.includes('manure') || msg.includes('npk')) {
-        reply = "🌱 **Fertilizer Management:** Balance chemical fertilizers with organic manure or vermicompost. Perform annual soil tests to apply accurate nitrogen, phosphorus, and potassium ratios.";
-      } else if (msg.includes('pest') || msg.includes('disease') || msg.includes('bug') || msg.includes('fungus')) {
-        reply = "🌿 **Pest & Disease Control:** For early infestations, spray organic neem oil solution (5ml per liter of water). Remove and safely dispose of diseased plant debris immediately.";
-      } else if (msg.includes('seed')) {
-        reply = "🌾 **Seed Guidance:** Upload a photo of your crop seed to our 'Seed Identification' tool on the dashboard for instant germination and planting guidelines.";
-      } else {
-        reply = "👨‍🌾 **Hello Farmer!** I am your Smart Farming Assistant. You can ask me about weather-based irrigation, fertilizer dosage, pest control, or seed planting guidance.";
-      }
-    }
-
+    console.warn('[Chat] Gemini API unavailable or quota reached, generating expert agricultural response:', error.message);
+    const reply = getAgriculturalExpertResponse(message, language);
     res.json({ response: reply, reply: reply, model: 'smart-farming-expert' });
   }
 });
+
+// Comprehensive Agronomic Expert Responder for AI Chatbot Fallback
+function getAgriculturalExpertResponse(userMessage, language = 'en') {
+  const msg = (userMessage || '').toLowerCase();
+  const isHi = language === 'hi';
+
+  // 1. Tomato Early / Late Blight / Leaf Spots
+  if (msg.includes('blight') || (msg.includes('tomato') && (msg.includes('spot') || msg.includes('leaf') || msg.includes('yellow') || msg.includes('treat'))) || msg.includes('ब्लाइट') || msg.includes('झुलसा') || msg.includes('टमाटर')) {
+    if (isHi) {
+      return "🍅 **टमाटर झुलसा रोग (Blight) का संपूर्ण उपचार:**\n\n" +
+        "• **लक्षण:** पत्तियों पर गहरे भूरे या काले छल्लेदार धब्बे (Early Blight) या पानी से भीगे भूरे धब्बे (Late Blight)।\n" +
+        "• **जैविक उपचार:** रोगग्रस्त निचली पत्तियों को तुरंत काटकर नष्ट करें। 5 मिली नीम का तेल या ट्राइकोडर्मा विरिडी (5 ग्राम/लीटर) का छिड़काव करें।\n" +
+        "• **रासायनिक उपचार:** मैंकोजेब (Mancozeb 75% WP) 2.5 ग्राम प्रति लीटर पानी में या कॉपर ऑक्सीक्लोराइड 3 ग्राम प्रति लीटर का 10-12 दिन के अंतराल पर छिड़काव करें।\n" +
+        "• **सावधानी:** पत्तियों के ऊपर से पानी देने (ओवरहेड सिंचाई) से बचें और ड्रिप सिंचाई का प्रयोग करें।";
+    }
+    return "🍅 **Treatment for Early & Late Blight in Tomatoes:**\n\n" +
+      "• **Identification:** Concentric brown 'bullseye' rings on lower leaves (Early Blight) or dark water-soaked lesions with white fungal mold during humidity (Late Blight).\n" +
+      "• **Organic Control:** Prune and safely destroy all infected lower foliage. Spray organic Neem Oil (5ml/L) or *Trichoderma viride* (5g/L water).\n" +
+      "• **Chemical Control:** Spray Mancozeb 75% WP @ 2.5g/L or Copper Oxychloride 50% WP @ 3g/L. In severe cases, apply Azoxystrobin + Difenoconazole @ 1ml/L.\n" +
+      "• **Cultural Prevention:** Avoid overhead sprinkler irrigation to keep foliage dry. Apply organic straw mulch to stop fungal spores splashing from soil.";
+  }
+
+  // 2. Wheat Planting, Soil, Timing, and Fertilizer
+  if (msg.includes('wheat') || msg.includes('गेहूं') || msg.includes('गेहू')) {
+    if (isHi) {
+      return "🌾 **गेहूं की उन्नत खेती (बुवाई, मिट्टी व सिंचाई गाइड):**\n\n" +
+        "• **बुवाई का उपयुक्त समय:** 1 नवंबर से 25 नवंबर (रबी मौसम) सबसे उत्तम समय है।\n" +
+        "• **मिट्टी व तैयारी:** अच्छी जल निकासी वाली दोमट या बलुई दोमट मिट्टी (pH 6.0 से 7.5)। खेत में 2-3 गहरी जुताई करें।\n" +
+        "• **उर्वरक प्रबंधन (NPK):** 120 किग्रा नाइट्रोजन, 60 किग्रा फास्फोरस, और 40 किग्रा पोटाश प्रति हेक्टेयर।\n" +
+        "• **क्रांतिक सिंचाई चरण:** बुवाई के 21 दिन बाद 'ताज जड़' (CRI स्टेज) पर पहली सिंचाई अत्यंत आवश्यक है। इसके बाद कल्ले फूटते समय और दाना भरते समय सिंचाई करें।\n" +
+        "• **बीज उपचार:** बुवाई से पहले बीजों को कार्बेन्डाजिम (2 ग्राम/किग्रा बीज) से उपचारित करें।";
+    }
+    return "🌾 **Wheat Cultivation Guide (Timing, Soil & Irrigation):**\n\n" +
+      "• **Optimal Sowing Window:** November 1st to November 25th (Rabi season) delivers maximum grain yield.\n" +
+      "• **Soil Requirements:** Well-drained fertile loamy to clay-loam soil with optimal pH 6.0–7.5. Avoid saline or waterlogged soils.\n" +
+      "• **Fertilizer Dose (NPK):** 120:60:40 kg/ha. Apply all Phosphorus and Potash with 1/3rd Nitrogen at sowing; apply remaining Nitrogen in two split top-dressings.\n" +
+      "• **Critical Irrigation Stages:** Crown Root Initiation (CRI) at 21–25 days after sowing is vital. Subsequent irrigations at tillering, flowering, and grain milking stages.\n" +
+      "• **Seed Rate & Treatment:** 100 kg/ha. Treat seeds with Carbendazim 50% WP @ 2g/kg seed before sowing.";
+  }
+
+  // 3. Rice / Paddy Cultivation
+  if (msg.includes('rice') || msg.includes('paddy') || msg.includes('धान') || msg.includes('चावल')) {
+    if (isHi) {
+      return "🌾 **धान (Rice) की खेती एवं प्रबंधन:**\n\n" +
+        "• **मौसम एवं रोपाई:** जून-जुलाई (खरीफ)। 21-25 दिन पुरानी नर्सरी पौध की रोपाई करें।\n" +
+        "• **मिट्टी:** चिकनी दोमट मिट्टी (Clay Loam) जो जल धारण करने में सक्षम हो (pH 5.5-6.5)।\n" +
+        "• **जल प्रबंधन:** रोपाई के समय 2-3 सेमी और कल्ले फूटने तक 5 सेमी पानी खेत में बनाए रखें।\n" +
+        "• **पोषण:** NPK 100:50:50 किग्रा/हेक्टेयर + 25 किग्रा जिंक सल्फेट प्रति हेक्टेयर दें।\n" +
+        "• **रोग रोकथाम:** ब्लास्ट (Blast) रोग से बचाव के लिए ट्राइसाइक्लाजोल (Tricyclazole) 0.6 ग्राम/लीटर का छिड़काव करें।";
+    }
+    return "🌾 **Rice / Paddy Production Guide:**\n\n" +
+      "• **Timing & Sowing:** Transplant 21–25 day-old seedlings in June–July with the onset of monsoon.\n" +
+      "• **Soil Requirement:** Heavy clay or clayey-loam with high water retention capacity (optimal pH 5.5–6.8).\n" +
+      "• **Water Regime:** Maintain 2–3 cm standing water during transplanting and 5 cm during active tillering.\n" +
+      "• **Nutrition:** NPK 120:60:40 kg/ha + 25 kg Zinc Sulfate per hectare to prevent Khaira disease.\n" +
+      "• **Disease Control:** Spray Tricyclazole 75% WP @ 0.6g/L against Rice Blast, and Streptocycline for Bacterial Leaf Blight.";
+  }
+
+  // 4. Corn / Maize Management
+  if (msg.includes('corn') || msg.includes('maize') || msg.includes('मक्का')) {
+    if (isHi) {
+      return "🌽 **मक्का (Maize/Corn) की फसल देखभाल:**\n\n" +
+        "• **बुवाई का समय:** खरीफ (जून-जुलाई) या वसंतकालीन (फरवरी-मार्च)।\n" +
+        "• **मिट्टी:** गहरी, उपजाऊ बलुई दोमट मिट्टी (pH 6.0-7.2)। खेत में जलनिकासी की अच्छी व्यवस्था होनी चाहिए।\n" +
+        "• **कीट नियंत्रण (फॉल आर्मीवॉर्म):** फॉल आर्मीवॉर्म सुंडी दिखने पर इमामेक्टिन बेंजोएट (Emamectin Benzoate 5% SG) 0.4 ग्राम/लीटर पानी में घोलकर छिड़कें।\n" +
+        "• **सिंचाई:** घुटने की ऊंचाई, नर मंजरी (Tasseling) और दाना बनने की अवस्था में पर्याप्त नमी बनाए रखें।";
+    }
+    return "🌽 **Corn / Maize Agronomic Advisory:**\n\n" +
+      "• **Sowing Seasons:** Kharif (June–July) or Spring (February–March). Ensure row spacing of 60 cm x 20 cm.\n" +
+      "• **Soil Profile:** Fertile, deep, well-aerated sandy loam with pH 6.0–7.2. Sensitive to water stagnation.\n" +
+      "• **Fall Armyworm Management:** Scout whorls early. Spray Emamectin Benzoate 5% SG @ 0.4g/L or Spinetoram 11.7% SC @ 0.5ml/L at early instar stage.\n" +
+      "• **Critical Moisture Stages:** Tasseling, silking, and grain filling stages are most moisture-critical.";
+  }
+
+  // 5. Potato Cultivation & Disease Care
+  if (msg.includes('potato') || msg.includes('आलू')) {
+    if (isHi) {
+      return "🥔 **आलू की उन्नत खेती और रोग प्रबंधन:**\n\n" +
+        "• **बुवाई का समय:** अक्टूबर से नवंबर का पहला पखवाड़ा।\n" +
+        "• **मिट्टी:** भुरभुरी, जीवांशयुक्त बलुई दोमट मिट्टी (pH 5.2-6.5)। कंद बनने के लिए भुरभुरी मिट्टी जरूरी है।\n" +
+        "• **झुलसा रोग (Blight):** पछेती झुलसा के प्रकोप पर साइमोक्सानिल + मैंकोजेब 2.5 ग्राम/लीटर का छिड़काव करें।\n" +
+        "• **मिट्टी चढ़ाना (Earthing Up):** बुवाई के 30-35 दिन बाद पौधों पर मिट्टी अवश्य चढ़ाएं ताकि कंदों पर धूप न लगे।";
+    }
+    return "🥔 **Potato Crop Care & Disease Control:**\n\n" +
+      "• **Planting Window:** October to mid-November for main autumn crop.\n" +
+      "• **Soil Quality:** Friable, well-aerated sandy loam rich in organic humus (pH 5.2–6.4).\n" +
+      "• **Late Blight Protection:** Spray Cymoxanil 8% + Mancozeb 64% WP @ 2.5g/L or Metalaxyl-M @ 2g/L at first sign of humid overcast weather.\n" +
+      "• **Earthing Up:** Mound loose soil around stems at 30–35 days after planting to prevent greening of tubers.";
+  }
+
+  // 6. Fertilizer, Manure, Compost & Nutrition
+  if (msg.includes('fertilizer') || msg.includes('manure') || msg.includes('npk') || msg.includes('urea') || msg.includes('dap') || msg.includes('खाद') || msg.includes('उर्वरक') || msg.includes('यूरिया') || msg.includes('गोबर')) {
+    if (isHi) {
+      return "🌱 **संतुलित उर्वरक एवं पोषण प्रबंधन:**\n\n" +
+        "• **मिट्टी परीक्षण:** उर्वरक डालने से पहले अपने खेत का मृदा परीक्षण (Soil Health Card) अवश्य कराएं।\n" +
+        "• **जैविक खाद:** प्रति एकड़ 3-4 टन अच्छी सड़ी गोबर की खाद या 1 टन केंचुआ खाद (वर्मीकम्पोस्ट) जुताई के समय मिलाएं।\n" +
+        "• **NPK का सही अनुपात:** अनाज फसलों में 4:2:1 (नाइट्रोजन, फास्फोरस, पोटाश) और दलहनी फसलों में 1:2:2 का अनुपात रखें।\n" +
+        "• **यूरिया का छिड़काव:** यूरिया को एक साथ न डालें। इसे 2-3 बराबर किस्तों में बांटकर सिंचाई के बाद नमी में दें।";
+    }
+    return "🌱 **Balanced Fertilizer & Soil Nutrition Plan:**\n\n" +
+      "• **Soil Testing:** Always base chemical fertilizer applications on a certified Soil Health Card report to reduce input costs.\n" +
+      "• **Organic Baseline:** Incorporate 8–10 tonnes/ha of well-rotted Farmyard Manure (FYM) or 2 tonnes of Vermicompost during basal plowing.\n" +
+      "• **NPK Ratio Principles:** Use 4:2:1 (N:P:K) for cereal crops (Wheat, Corn) and 1:2:2 for legume crops (Soybean, Pulses).\n" +
+      "• **Nitrogen Efficiency:** Never broadcast full Urea at once. Split Nitrogen into 3 doses: 50% basal, 25% at tillering, 25% before panicle emergence.";
+  }
+
+  // 7. Pest, Bug, Insect, Worm Control
+  if (msg.includes('pest') || msg.includes('insect') || msg.includes('bug') || msg.includes('aphid') || msg.includes('worm') || msg.includes('कीट') || msg.includes('कीड़ा') || msg.includes('माहू') || msg.includes('इल्ली') || msg.includes('सुंडी')) {
+    if (isHi) {
+      return "🌿 **एकीकृत कीट प्रबंधन (IPM) सलाह:**\n\n" +
+        "• **भौतिक नियंत्रण:** उड़ने वाले रस चूसक कीटों (माहू, सफेद मक्खी) के लिए प्रति एकड़ 6-8 पीले और नीले चिपचिपे कार्ड (Sticky Traps) लगाएं।\n" +
+        "• **जैविक समाधान:** शुरुआती अवस्था में 10,000 PPM नीम का तेल (3-5 मिली प्रति लीटर पानी) मिलाकर 7 दिन के अंतराल पर छिड़कें।\n" +
+        "• **सफेद मक्खी / थ्रिप्स:** प्रकोप बढ़ने पर इमिडाक्लोप्रिड 17.8% SL (0.5 मिली/लीटर) का छिड़काव करें।\n" +
+        "• **इल्ली / कैटरपिलर:** बीटी (Bacillus thuringiensis) 2 ग्राम/लीटर या स्पाइनोसैड (Spinosad 45% SC) 0.3 मिली/लीटर का छिड़काव करें।";
+    }
+    return "🌿 **Integrated Pest Management (IPM) Strategy:**\n\n" +
+      "• **Physical Traps:** Install 6–8 Yellow Sticky Traps per acre for aphids and whiteflies, and Blue Traps for thrips.\n" +
+      "• **Organic Spray:** Apply cold-pressed Neem Oil (10,000 PPM) @ 3–5ml/L mixed with mild surfactant at first sighting.\n" +
+      "• **Sucking Pests (Aphids, Jassids, Whiteflies):** Spray Imidacloprid 17.8% SL @ 0.5ml/L or Acetamiprid 20% SP @ 0.3g/L.\n" +
+      "• **Caterpillars & Borers:** Apply bio-agent *Bacillus thuringiensis* (Bt) @ 2g/L or Spinosad 45% SC @ 0.3ml/L.";
+  }
+
+  // 8. Fungus, Rot, Mildew, Rust Diseases
+  if (msg.includes('rust') || msg.includes('rot') || msg.includes('fungus') || msg.includes('mildew') || msg.includes('फफूंद') || msg.includes('फंगस') || msg.includes('सड़न') || msg.includes('रतुआ')) {
+    if (isHi) {
+      return "🛡️ **फफूंद जनित रोगों (Fungal Diseases) की रोकथाम:**\n\n" +
+        "• **पहचान:** पत्तियों पर पीला/नारंगी पाउडर (Rust/रतुआ), सफेद चूर्ण (Powdery Mildew), या तने/जड़ पर सड़न (Root Rot)।\n" +
+        "• **जड़ सड़न (Root Rot):** ट्राइकोडर्मा विरिडी 1 किग्रा को 50 किग्रा गोबर की खाद में मिलाकर जड़ों के पास डालें।\n" +
+        "• **रतुआ व चूर्णिल आसिता (Mildew/Rust):** प्रोपिकोनाजोल (Propiconazole 25% EC) 1 मिली प्रति लीटर या घुलनशील गंधक (Sulfur 80% WDG) 2.5 ग्राम/लीटर का छिड़काव करें।\n" +
+        "• **जल निकासी:** जड़ों के पास जलभराव न होने दें, क्योंकि नमी में फफूंद तेजी से फैलती है।";
+    }
+    return "🛡️ **Fungal Disease Protocol (Rust, Mildew & Rot):**\n\n" +
+      "• **Diagnosis:** Orange/brown pustules on leaves indicate Rust; white powder indicates Powdery Mildew; blackened crown indicates Stem/Root Rot.\n" +
+      "• **Root Rot Prevention:** Drench soil with *Trichoderma viride* or Carbendazim 50% WP @ 2g/L.\n" +
+      "• **Rust & Leaf Spot Treatment:** Spray Propiconazole 25% EC @ 1ml/L or Tebuconazole 25.9% EC @ 1ml/L.\n" +
+      "• **Powdery Mildew:** Spray Wettable Sulfur 80% WDG @ 2.5g/L or Dinocap @ 1ml/L.\n" +
+      "• **Agronomic Tip:** Improve air circulation within the canopy and strictly avoid wet foliage overnight.";
+  }
+
+  // 9. Soil Health, Preparation, Testing & pH
+  if (msg.includes('soil') || msg.includes('ph') || msg.includes('मिट्टी') || msg.includes('जमीन')) {
+    if (isHi) {
+      return "🌍 **मृदा स्वास्थ्य एवं तैयारी (Soil Health Guide):**\n\n" +
+        "• **आदर्श pH मान:** अधिकांश फसलों के लिए 6.2 से 7.5 pH सबसे उपयुक्त होता है।\n" +
+        "• **अम्लीय मिट्टी (Acidic, pH < 6.0):** खेत में बुवाई से 15 दिन पहले कृषि चूना (Agricultural Lime) 2-3 क्विंटल/एकड़ मिलाएं।\n" +
+        "• **क्षारीय मिट्टी (Alkaline/Sodic, pH > 8.0):** खेत में जिप्सम (Gypsum) डालें और हरी खाद (ढैंचा) की जुताई करें।\n" +
+        "• **संरचना सुधार:** मिट्टी की जलधारण क्षमता और केंचुओं की संख्या बढ़ाने के लिए प्रतिवर्ष 2-3 ट्रॉली जैविक खाद जरूर डालें।";
+    }
+    return "🌍 **Soil Health & Quality Optimization:**\n\n" +
+      "• **Optimal pH Range:** Most agricultural crops perform best in pH 6.2 to 7.2.\n" +
+      "• **Acidic Soils (pH < 6.0):** Apply Agricultural Limestone (CaCO3) @ 2–3 quintals/acre to neutralize acidity and unlock Phosphorus.\n" +
+      "• **Alkaline/Sodic Soils (pH > 8.0):** Apply Agricultural Gypsum (CaSO4) and incorporate green manure (Sesbania/Dhaincha) to restore permeability.\n" +
+      "• **Organic Carbon Boost:** Add well-decomposed cow dung manure or vermicompost to increase soil cation-exchange capacity and water-holding capacity.";
+  }
+
+  // 10. Irrigation, Water & Drought
+  if (msg.includes('water') || msg.includes('irrigation') || msg.includes('पानी') || msg.includes('सिंचाई') || msg.includes('सूखा')) {
+    if (isHi) {
+      return "💧 **वैज्ञानिक सिंचाई प्रबंधन:**\n\n" +
+        "• **सिंचाई का सही समय:** हमेशा सुबह (6-8 AM) या देर शाम को सिंचाई करें ताकि वाष्पीकरण से पानी का नुकसान न हो।\n" +
+        "• **ड्रिप सिंचाई (Micro-Irrigation):** ड्रिप सिंचाई अपनाने से 45-50% जल की बचत होती है और खरपतवार नहीं पनपते।\n" +
+        "• **नमी परीक्षण:** सिंचाई से पूर्व 4-6 इंच की गहराई पर मिट्टी की मुट्ठी बनाकर देखें; यदि मुट्ठी बंधती है तो सिंचाई की आवश्यकता नहीं है।\n" +
+        "• **मल्चिंग:** तेज धूप में नमी को उड़ने से रोकने के लिए पौधों के चारों ओर पुआल या काली प्लास्टिक मल्च बिछाएं।";
+    }
+    return "💧 **Scientific Irrigation Management:**\n\n" +
+      "• **Timing:** Irrigate strictly during early morning (6–8 AM) or dusk to reduce evapotranspiration losses by up to 35%.\n" +
+      "• **Drip Irrigation:** Highly recommended for vegetables and orchards—saves 40–50% water and delivers fertilizers directly to the root zone.\n" +
+      "• **Moisture Testing:** Check root depth (10–15 cm) by squeezing a handful of soil. If it holds shape without dripping, moisture is adequate.\n" +
+      "• **Mulching:** Spread 2–3 inches of straw or organic mulch around stems to retain moisture and prevent weed growth.";
+  }
+
+  // 11. Seed Sowing, Treatment & Germination
+  if (msg.includes('seed') || msg.includes('germination') || msg.includes('sow') || msg.includes('बीज') || msg.includes('अंकुरण') || msg.includes('बुवाई')) {
+    if (isHi) {
+      return "🌱 **बीज चयन, उपचार एवं बुवाई विधि:**\n\n" +
+        "• **प्रमाणित बीज:** हमेशा विश्वसनीय स्रोत से प्रमाणित (Certified) व रोगमुक्त बीज ही खरीदें।\n" +
+        "• **बीज उपचार (Seed Treatment):** बुवाई से पहले प्रति किग्रा बीज को 2 ग्राम थीरम/कार्बेन्डाजिम या 5 ग्राम ट्राइकोडर्मा से उपचारित करें। इससे जड़ गलन नहीं होता।\n" +
+        "• **बुवाई की गहराई:** बीज को उसके आकार से 2 से 3 गुना गहराई (लगभग 3-5 सेमी) पर बोएं। अधिक गहरा बोने से अंकुरण प्रभावित होता है।\n" +
+        "• **अंकुरण परीक्षण:** बुवाई से पहले 100 बीजों को गीले सूती कपड़े में 3 दिन रखकर अंकुरण प्रतिशत जांचें (कम से कम 80% अंकुरण होना चाहिए)।";
+    }
+    return "🌱 **Seed Treatment, Sowing & Germination:**\n\n" +
+      "• **Quality Verification:** Purchase certified, high-germination hybrid seeds suitable for your local agro-climatic zone.\n" +
+      "• **Seed Treatment (FIR Protocol):** Treat seeds with Fungicide (Thiram/Carbendazim @ 2g/kg), then Insecticide (Imidacloprid @ 3ml/kg), then Rhizobium/Azotobacter bio-fertilizer.\n" +
+      "• **Sowing Depth:** Sow at a depth equal to 2–3 times the seed diameter (usually 3–5 cm in moist seedbed).\n" +
+      "• **Germination Test:** Test 100 seeds in a moist cloth pouch for 72 hours; ensure at least 80–85% germination rate before field sowing.";
+  }
+
+  // 12. Default Helpful Farming Guidance
+  if (isHi) {
+    return "👨‍🌾 **नमस्ते किसान साथी! मैं आपका स्मार्ट कृषि सलाहकार हूँ।**\n\n" +
+      "आप मुझसे किसी भी फसल या कृषि समस्या के बारे में पूछ सकते हैं, जैसे:\n" +
+      "• 🌿 **फसल रोग:** टमाटर का झुलसा, गेहूं का रतुआ, पत्ती मरोड़, या फफूंद उपचार।\n" +
+      "• 🌾 **फसल गाइड:** गेहूं, धान, मक्का, आलू, या सोयाबीन की बुवाई, मिट्टी और मौसम।\n" +
+      "• 🌱 **खाद व पोषण:** NPK अनुपात, यूरिया की सही मात्रा, और वर्मीकम्पोस्ट।\n" +
+      "• 🐛 **कीट नियंत्रण:** माहू, सुंडी, सफेद मक्खी, और नीम के तेल का उपयोग।\n\n" +
+      "कृपया अपना प्रश्न विस्तार से लिखें!";
+  }
+  return "👨‍🌾 **Hello Farmer! I am your Smart Agricultural Expert.**\n\n" +
+    "You can ask me any specific question about your farm, for example:\n" +
+    "• 🌿 **Crop Diseases:** 'How to treat early blight on tomato?', 'Potato blight remedies', or 'Fungus on leaf'\n" +
+    "• 🌾 **Crop Guides:** 'Best soil and timing for planting wheat', 'Rice sowing guide', or 'Corn pest control'\n" +
+    "• 🌱 **Fertilizers:** 'NPK ratios for crops', 'Urea dosage', or 'How to improve soil pH'\n" +
+    "• 🐛 **Pests:** 'How to get rid of aphids and whiteflies', or 'Neem oil dosage'\n\n" +
+    "Please type your specific farming question above!";
+}
 
 // Curated Agricultural Knowledge Base for Weather-Adaptive Tips
 const CURATED_TIPS = {

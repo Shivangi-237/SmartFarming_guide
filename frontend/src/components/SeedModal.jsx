@@ -203,7 +203,7 @@ export default function SeedModal({ isOpen, onClose }) {
         {/* Identification Result */}
         {result && (
           <div style={{ marginTop: '20px', animation: 'fadeIn 0.3s ease' }}>
-            {result.is_recognized === false || parseFloat(result.confidence) < 25.0 ? (
+            {result.is_recognized === false || parseFloat(result.confidence) < 50.0 ? (
               <div style={{
                 padding: '18px',
                 borderRadius: '16px',
@@ -213,12 +213,12 @@ export default function SeedModal({ isOpen, onClose }) {
               }}>
                 <h4 style={{ fontSize: '1.05rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <i className="fa-solid fa-triangle-exclamation"></i>
-                  {lang === 'hi' ? 'अज्ञात या असमर्थित बीज' : 'Unrecognized Seed'}
+                  {lang === 'hi' ? 'अस्पष्ट या असमर्थित बीज' : 'Low Confidence / Unclear Seed'}
                 </h4>
                 <p style={{ fontSize: '0.88rem', lineHeight: '1.5' }}>
                   {lang === 'hi'
-                    ? `एआई सटीकता कम है (${result.confidence}% संभावना ${result.seed} के लिए)। कृपया बीज की एक स्पष्ट फोटो अपलोड करें।`
-                    : `Confidence is low (${result.confidence}% for ${result.seed}). Please ensure the seed is well-lit and matches supported crops: Apple, Wheat, Rice, Corn, Pomegranate, Soybean, Sunflower.`}
+                    ? `मॉडल इस तस्वीर के बारे में निश्चित नहीं है (${result.confidence}% संभावना)। गलत जानकारी से बचने के लिए, कृपया बीज की एक साफ और पास से (क्लोज-अप) फोटो अपलोड करें।`
+                    : `The model is uncertain (${result.confidence}% confidence for ${result.seed}). To prevent false identification, please upload a clear, well-lit, close-up photo of the seed.`}
                 </p>
               </div>
             ) : (

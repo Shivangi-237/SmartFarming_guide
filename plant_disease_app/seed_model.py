@@ -94,8 +94,8 @@ def predict_seed(image_path):
     confidence = float(round(float(preds[0][idx]) * 100, 2))
     name = seed_classes[idx]
     
-    # 25% threshold for 7-class local model (random chance is 14%)
-    is_recognized = bool(confidence >= 25.0)
+    # 50% threshold for verified identification (random chance is 14%)
+    is_recognized = bool(confidence >= 50.0)
     
     base_info = seed_details.get(name, {
         'scientific': name,
